@@ -1,5 +1,7 @@
 # OpenTelemetry Observability Stack PoC
 
+![Work in Progress](https://img.shields.io/badge/status-WIP-yellow)
+
 Complete observability platform with OpenTelemetry demonstrating traces, metrics, and logs across C#, Go, Python, Rust and C++.
 
 ## Quick Start
