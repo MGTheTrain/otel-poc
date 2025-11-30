@@ -230,14 +230,14 @@ This Docker Compose setup can be migrated to Kubernetes using tools like kind or
 - Deploy with Helm charts for easier management
 - Test scaling, rolling updates, and service mesh integration
 
-### Cloud Deployment
-For production in public clouds (AWS, GCP, Azure):
+### Deployment (Cloud & On-Premises)
+For production in public clouds (AWS, GCP, Azure) or on-premises environments:
 
-- Use managed Kubernetes (EKS, GKE, AKS) for orchestration
-- Consider managed services (Prometheus/Grafana Cloud, AWS X-Ray, etc.)
-- Implement cloud-native storage (EBS, Persistent Disks, Azure Disks)
-- Leverage cloud load balancers and ingress controllers
-- Use cloud IAM for authentication and authorization
+- Use Kubernetes (managed like EKS/GKE/AKS or self-hosted) for orchestration
+- Consider managed or self-hosted monitoring/observability tools (Prometheus, Grafana, tracing)
+- Implement appropriate storage (cloud disks or on-premises persistent storage)
+- Leverage load balancers and ingress controllers suitable for the environment
+- Use IAM or equivalent access control for authentication and authorization
 
 ### Essential Security & Reliability
 - [ ] Enable TLS for all endpoints
