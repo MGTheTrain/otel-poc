@@ -1,0 +1,21 @@
+{
+  "name": "Python OpenTelemetry Service",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  "forwardPorts": [8080],
+  "postCreateCommand": "cd services/python && pip install -r requirements.txt",
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"
+  }
+}

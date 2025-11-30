@@ -1,0 +1,55 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/target/
+**/__pycache__/
+**/build/
+**/.pytest_cache/
+**/.cargo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Dependencies
+**/node_modules/
+**/.venv/
+**/venv/
+
+# Docker
+.env
+
+# C# specific
+*.user
+*.suo
+*.cache
+project.lock.json
+
+# Go specific (should be committed for reproducible builds)
+# go.sum
+
+# Rust specific (should be committed for reproducible builds)
+# Cargo.lock
+
+# Python specific
+*.pyc
+*.pyo
+*.egg-info/
+.tox/
+
+# C++ specific
+*.o
+*.a
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
