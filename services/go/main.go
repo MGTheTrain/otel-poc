@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	otellog "go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/propagation"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
@@ -116,9 +117,14 @@ func main() {
 
 	router.GET("/api/hello", func(c *gin.Context) {
 		logger := global.GetLoggerProvider().Logger("go-service")
-		logger.Emit(c.Request.Context(), sdklog.Record{
-			Body: sdklog.StringValue("Hello endpoint called from Go service"),
-		})
+
+		// Create API log.Record
+		var record otellog.Record
+		record.SetTimestamp(time.Now())
+		record.SetBody(otellog.StringValue("Hello endpoint called from Go service"))
+		record.SetSeverity(otellog.SeverityInfo)
+
+		logger.Emit(c.Request.Context(), record)
 
 		c.JSON(http.StatusOK, gin.H{
 			"message":   "Hello from Go with OpenTelemetry!",

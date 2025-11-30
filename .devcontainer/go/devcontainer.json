@@ -1,6 +1,6 @@
 {
   "name": "Go OpenTelemetry Service",
-  "image": "mcr.microsoft.com/devcontainers/go:1.21",
+  "image": "mcr.microsoft.com/devcontainers/go:1.25-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -12,7 +12,6 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "cd services/go && go mod download",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"
