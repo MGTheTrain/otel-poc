@@ -16,6 +16,6 @@
   "postCreateCommand": "cd services/python && pip install -r requirements.txt",
   "remoteUser": "vscode",
   "remoteEnv": {
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317"
   }
 }
