@@ -1,6 +1,6 @@
 {
   "name": "C# OpenTelemetry Service",
-  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:9.0-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -13,7 +13,7 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "cd services/csharp && dotnet restore",
+  "postCreateCommand": "cd services/csharp && dotnet restore OtelService.csproj",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"
