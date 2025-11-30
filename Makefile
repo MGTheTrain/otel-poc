@@ -7,7 +7,7 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 start: ## Start all services
-	@./scripts/start.sh
+	@docker-compose -f docker-compose.otel-stack.yml up -d
 
 stop: ## Stop all services
 	@echo "🛑 Stopping all services..."
