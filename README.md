@@ -258,6 +258,7 @@ For production in public clouds (AWS, GCP, Azure) or on-premises environments:
 ## Resources
 
 - [OpenTelemetry Docs](https://opentelemetry.io/docs/)
+- [List of available OpenTelemetry Collector exporters](https://opentelemetry.io/docs/collector/components/exporter/)
 - [Jaeger Docs](https://www.jaegertracing.io/docs/)
 - [Prometheus Docs](https://prometheus.io/docs/)
 - [Loki Docs](https://grafana.com/docs/loki/)
