@@ -1,4 +1,4 @@
-.PHONY: help start stop restart logs clean build status test grafana jaeger prometheus
+.PHONY: help start stop restart logs clean build status test start-infra start-csharp start-go start-python start-rust start-cpp grafana jaeger prometheus
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
