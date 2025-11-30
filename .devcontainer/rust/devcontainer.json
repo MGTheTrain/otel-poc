@@ -1,6 +1,6 @@
 {
   "name": "Rust OpenTelemetry Service",
-  "image": "mcr.microsoft.com/devcontainers/rust:1-bullseye",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -9,11 +9,17 @@
       "extensions": [
         "rust-lang.rust-analyzer",
         "vadimcn.vscode-lldb"
-      ]
+      ],
+      "settings": {
+        "debug.allowBreakpointsEverywhere": true,
+        "rust-analyzer.linkedProjects": [
+          "${containerWorkspaceFolder}/services/rust/Cargo.toml"
+        ]
+      }
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "cargo build",
+  "postCreateCommand": "cd services/rust && cargo build",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"

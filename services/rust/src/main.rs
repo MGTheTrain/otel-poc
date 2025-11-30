@@ -1,10 +1,8 @@
 use actix_web::{get, web, App, HttpServer, Responder};
-use opentelemetry::global;
-use opentelemetry::KeyValue;
-use opentelemetry_sdk::{runtime, Resource};
-use opentelemetry_sdk::trace::TracerProvider;
-use opentelemetry_sdk::metrics::MeterProvider;
-use opentelemetry_otlp::{WithExportConfig, Protocol};
+use opentelemetry::{global, trace::TracerProvider};
+use opentelemetry_otlp::WithExportConfig;
+use opentelemetry_sdk::{logs::SdkLoggerProvider, Resource, runtime};
+use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
 use serde::Serialize;
 use std::env;
 use tracing::{info, Level};
@@ -35,50 +33,65 @@ async fn hello() -> impl Responder {
 }
 
 fn init_telemetry() -> Result<(), Box<dyn std::error::Error>> {
-    let service_name = env::var("OTEL_SERVICE_NAME").unwrap_or_else(|_| "rust-service".to_string());
+    let service_name = env::var("OTEL_SERVICE_NAME")
+        .unwrap_or_else(|_| "rust-service".to_string());
     let otlp_endpoint = env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
         .unwrap_or_else(|_| "http://localhost:4317".to_string());
 
     // Resource
-    let resource = Resource::new(vec![KeyValue::new("service.name", service_name.clone())]);
+    let resource = Resource::builder()
+        .with_service_name(service_name.clone())
+        .build();
 
     // Tracing
-    let tracer = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(
-            opentelemetry_otlp::new_exporter()
-                .tonic()
-                .with_endpoint(&otlp_endpoint)
-                .with_protocol(Protocol::Grpc),
-        )
-        .with_trace_config(
-            opentelemetry_sdk::trace::config().with_resource(resource.clone()),
-        )
-        .install_batch(runtime::Tokio)?;
-
-    global::set_tracer_provider(TracerProvider::builder()
-        .with_config(opentelemetry_sdk::trace::config().with_resource(resource.clone()))
-        .build());
-
-    // Metrics
-    let meter = opentelemetry_otlp::new_pipeline()
-        .metrics(runtime::Tokio)
-        .with_exporter(
-            opentelemetry_otlp::new_exporter()
-                .tonic()
-                .with_endpoint(&otlp_endpoint)
-                .with_protocol(Protocol::Grpc),
-        )
-        .with_resource(resource)
+    let trace_exporter = opentelemetry_otlp::SpanExporter::builder()
+        .with_tonic()
+        .with_endpoint(otlp_endpoint.clone())
         .build()?;
 
-    global::set_meter_provider(meter);
+    let tracer_provider = opentelemetry_sdk::trace::SdkTracerProvider::builder()
+        .with_batch_exporter(trace_exporter)
+        .with_resource(resource.clone())
+        .build();
 
-    // Logging with tracing
-    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+    global::set_tracer_provider(tracer_provider.clone());
+
+    // Metrics
+    let metric_exporter = opentelemetry_otlp::MetricExporter::builder()
+        .with_tonic()
+        .with_endpoint(otlp_endpoint.clone())
+        .build()?;
+
+    let meter_provider = opentelemetry_sdk::metrics::SdkMeterProvider::builder()
+        .with_reader(
+            opentelemetry_sdk::metrics::PeriodicReader::builder(metric_exporter)
+                .build()
+        )
+        .with_resource(resource.clone())
+        .build();
+
+    global::set_meter_provider(meter_provider);
+
+    // Logs
+    let log_exporter = opentelemetry_otlp::LogExporter::builder()
+        .with_tonic()
+        .with_endpoint(otlp_endpoint)
+        .build()?;
+
+    let logger_provider = SdkLoggerProvider::builder()
+        .with_batch_exporter(log_exporter)
+        .with_resource(resource)
+        .build();
+
+    // Tracing subscriber
+    let telemetry_layer = tracing_opentelemetry::layer()
+        .with_tracer(tracer_provider.tracer("rust-service"));
+    let otel_log_layer = OpenTelemetryTracingBridge::new(&logger_provider);
+    
     let subscriber = Registry::default()
         .with(tracing_subscriber::fmt::layer())
-        .with(telemetry)
+        .with(telemetry_layer)
+        .with(otel_log_layer)
         .with(tracing_subscriber::filter::LevelFilter::from_level(Level::INFO));
 
     tracing::subscriber::set_global_default(subscriber)?;

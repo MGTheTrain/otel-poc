@@ -8,7 +8,7 @@
 **/.cargo/
 
 # IDE
-.vscode/
+# .vscode/ (Needed for C++ and Rust debugging)
 .idea/
 *.swp
 *.swo

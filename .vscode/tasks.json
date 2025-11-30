@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cargo build rust",
+            "type": "shell",
+            "command": "cargo build",
+            "options": { "cwd": "${workspaceFolder}/services/rust" },
+            "problemMatcher": ["$rustc"]
+        },
+        {
+            "label": "cmake build cpp",
+            "type": "shell",
+            "command": "cmake --build build",
+            "options": { "cwd": "${workspaceFolder}/services/cpp" },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}

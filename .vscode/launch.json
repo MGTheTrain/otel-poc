@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Rust Service",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/services/rust/target/debug/rust-otel-service",
+            "args": [],
+            "cwd": "${workspaceFolder}/services/rust",
+            "preLaunchTask": "cargo build rust"
+        },
+        {
+            "name": "Debug C++ Service",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/services/cpp/build/cpp-otel-service",
+            "args": [],
+            "cwd": "${workspaceFolder}/services/cpp",
+            "preLaunchTask": "cmake build cpp"
+        }
+    ]
+}
