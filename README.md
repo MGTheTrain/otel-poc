@@ -71,14 +71,24 @@ Available targets:
 ## Development
 
 ### Using Dev Containers (Recommended)
-Each service includes a VS Code dev container with all dependencies pre-installed and [docker-in-docker](https://github.com/devcontainers/features/tree/main/src/docker-in-docker) capabilities
+Each service includes a VS Code dev container with all dependencies pre-installed and [docker-in-docker](https://github.com/devcontainers/features/tree/main/src/docker-in-docker) capabilities for proper debugging:
 
-**Dev Container Advantages**:
+**Setup Steps:**
+1. Launch the dev container for the chosen service in VS Code
+2. Once the dev container builds, start backend services:
+   ```bash
+   make start-infra
+   ```
+3. Set breakpoints in your code and start debugging
+4. Service connects to `localhost:4317` (forwarded to `otel-collector`)
+
+**Dev Container Advantages:**
 - Zero setup - all dependencies pre-installed
 - Consistent environment across team
 - Full IDE support (IntelliSense, debugging)
 - Isolated from host system
-- Works on common OS (Windows, Mac, Linux)
+- Works on any OS (Windows, Mac, Linux)
+- Docker-in-docker for running containers within the dev environment
 
 ## Viewing Telemetry
 
