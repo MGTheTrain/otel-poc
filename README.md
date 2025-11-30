@@ -104,6 +104,8 @@ make grafana
 # 3. Select a service (e.g. "python-service")
 ```
 
+![](./images/grafana-jaeger-sample-traces.png)
+
 ### Metrics (Grafana + Prometheus)
 ```bash
 # 1. Open Grafana
@@ -126,6 +128,8 @@ make grafana
 {service_name=~".*-service"} |= "Hello"             # Logs containing "Hello"
 {service_name=~".*-service"} |= "error" or "Error"  # Error logs
 ```
+
+![](./images/grafana-loki-sample-logs.png)
 
 ## Project Structure
 
