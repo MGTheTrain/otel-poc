@@ -242,7 +242,7 @@ For production in public clouds (AWS, GCP, Azure) or on-premises environments:
 - Use Kubernetes (managed like EKS/GKE/AKS or self-hosted) for orchestration
 - Consider managed or self-hosted monitoring/observability tools (Prometheus, Grafana, tracing)
 - Implement appropriate storage (cloud disks or on-premises persistent storage)
-- Leverage load balancers and ingress controllers suitable for the environment
+- Leverage load balancers and ingress controllers or [Gateway API](https://kubernetes.io/docs/concepts/services-networking/gateway/) suitable for the environment
 - Use IAM or equivalent access control for authentication and authorization
 
 ### Essential Security & Reliability
