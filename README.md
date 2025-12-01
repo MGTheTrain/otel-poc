@@ -129,6 +129,11 @@ make restart
 - [Prometheus Docs](https://prometheus.io/docs/)
 - [Loki Docs](https://grafana.com/docs/loki/)
 - [Grafana Docs](https://grafana.com/docs/)
+- [OpenTelemetry Rust Examples](https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples)
+- [OpenTelemetry C++ Examples](https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples)
+- [OpenTelemetry Go Examples](https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/examples)
+- [OpenTelemetry NET Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples)
+- [OpenTelemetry Python Getting Started](https://opentelemetry.io/docs/languages/python/getting-started/)
 
 ## Common Use Cases
 
