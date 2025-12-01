@@ -13,7 +13,7 @@ help: ## Show this help message
 	@echo '  make logs SERVICES="python-service"          # View specific logs'
 
 start: ## Start services (use SERVICES="svc1 svc2" for specific services)
-	@docker-compose -f docker-compose.otel-stack.yml up -d $(SERVICES)
+	@docker compose -f docker-compose.otel-stack.yml up -d $(SERVICES)
 
 stop: ## Stop services (use SERVICES="svc1 svc2" for specific services)
 	@echo "Stopping services..."
