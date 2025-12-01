@@ -7,7 +7,19 @@ Complete observability platform with OpenTelemetry demonstrating traces, metrics
 ## Quick Start
 
 ```bash
-make start    # Start the entire stack
+# Start everything (time- and resource-consuming C++ builds)
+make start
+
+# Start specific services
+make start SERVICES="otel-collector jaeger prometheus loki grafana"
+make start SERVICES="csharp-service python-service"
+
+# Build/Rebuild specific services
+make build SERVICES="rust-service cpp-service"
+
+# View specific service logs
+make logs SERVICES="python-service"
+
 make test     # Generate test traffic
 make grafana  # Open Grafana UI
 ```
@@ -47,27 +59,28 @@ Microservices (C#, Go, Python, Rust, C++)
 ## Available Commands
 
 ```bash
-Usage: make [target]
+Usage: make [target] [SERVICES="service1 service2"]
 
 Available targets:
   help            Show this help message
-  start           Start all services
-  stop            Stop all services
-  restart         Restart all services
-  logs            Show logs from all services
-  build           Build all service images
+  start           Start services (use SERVICES="svc1 svc2" for specific services)
+  stop            Stop services (use SERVICES="svc1 svc2" for specific services)
+  restart         Restart services
+  logs            Show logs (use SERVICES="svc1 svc2" for specific services)
+  build           Build service images (use SERVICES="svc1 svc2" for specific services)
   clean           Stop services and remove volumes
   status          Show status of all services
   test            Generate test traffic
-  start-infra     Start only infrastructure (no app services)
-  start-csharp    Start only C# service
-  start-go        Start only Go service
-  start-python    Start only Python service
-  start-rust      Start only Rust service
-  start-cpp       Start only C++ service
+  start-infra     Start only infrastructure services
   grafana         Open Grafana in browser
   jaeger          Open Jaeger in browser
   prometheus      Open Prometheus in browser
+
+Examples:
+  make start                                   # Start all services
+  make start SERVICES="otel-collector jaeger"  # Start specific services
+  make build SERVICES="rust-service"           # Build specific service
+  make logs SERVICES="python-service"          # View specific logs
 ```
 
 ## Development

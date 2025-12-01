@@ -1,29 +1,35 @@
-.PHONY: help start stop restart logs clean build status test start-infra start-csharp start-go start-python start-rust start-cpp grafana jaeger prometheus
+.PHONY: help start stop restart logs clean build status test start-infra grafana jaeger prometheus
 
 help: ## Show this help message
-	@echo 'Usage: make [target]'
+	@echo 'Usage: make [target] [SERVICES="service1 service2"]'
 	@echo ''
 	@echo 'Available targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ''
+	@echo 'Examples:'
+	@echo '  make start                                   # Start all services'
+	@echo '  make start SERVICES="otel-collector jaeger"  # Start specific services'
+	@echo '  make build SERVICES="rust-service"           # Build specific service'
+	@echo '  make logs SERVICES="python-service"          # View specific logs'
 
-start: ## Start all services
-	@docker-compose -f docker-compose.otel-stack.yml up -d
+start: ## Start services (use SERVICES="svc1 svc2" for specific services)
+	@docker-compose -f docker-compose.otel-stack.yml up -d $(SERVICES)
 
-stop: ## Stop all services
-	@echo "🛑 Stopping all services..."
-	@docker compose -f docker-compose.otel-stack.yml down
+stop: ## Stop services (use SERVICES="svc1 svc2" for specific services)
+	@echo "Stopping services..."
+	$(if $(SERVICES),@docker compose -f docker-compose.otel-stack.yml stop $(SERVICES),@docker compose -f docker-compose.otel-stack.yml down)
 
-restart: stop start ## Restart all services
+restart: stop start ## Restart services
 
-logs: ## Show logs from all services
-	@docker compose -f docker-compose.otel-stack.yml logs -f
+logs: ## Show logs (use SERVICES="svc1 svc2" for specific services)
+	@docker compose -f docker-compose.otel-stack.yml logs -f $(SERVICES)
 
-build: ## Build all service images
-	@echo "🔨 Building all service images..."
-	@docker compose -f docker-compose.otel-stack.yml build
+build: ## Build service images (use SERVICES="svc1 svc2" for specific services)
+	@echo "Building service images..."
+	@docker compose -f docker-compose.otel-stack.yml build --no-cache $(SERVICES)
 
 clean: stop ## Stop services and remove volumes
-	@echo "🧹 Cleaning up..."
+	@echo "Cleaning up..."
 	@docker compose -f docker-compose.otel-stack.yml down -v
 	@docker system prune -f
 
@@ -33,26 +39,9 @@ status: ## Show status of all services
 test: ## Generate test traffic
 	@./scripts/generate-traffic.sh
 
-# Individual service targets
-start-infra: ## Start only infrastructure (no app services)
+start-infra: ## Start only infrastructure services
 	@docker compose -f docker-compose.otel-stack.yml up -d otel-collector jaeger prometheus loki grafana
 
-start-csharp: ## Start only C# service
-	@docker compose -f docker-compose.otel-stack.yml up -d csharp-service
-
-start-go: ## Start only Go service
-	@docker compose -f docker-compose.otel-stack.yml up -d go-service
-
-start-python: ## Start only Python service
-	@docker compose -f docker-compose.otel-stack.yml up -d python-service
-
-start-rust: ## Start only Rust service
-	@docker compose -f docker-compose.otel-stack.yml up -d rust-service
-
-start-cpp: ## Start only C++ service
-	@docker compose -f docker-compose.otel-stack.yml up -d cpp-service
-
-# Monitoring shortcuts
 grafana: ## Open Grafana in browser
 	@echo "Opening Grafana..."
 	@open http://localhost:3000 2>/dev/null || xdg-open http://localhost:3000 2>/dev/null || echo "Open http://localhost:3000 in your browser"
