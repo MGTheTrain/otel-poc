@@ -8,12 +8,17 @@
     "vscode": {
       "extensions": [
         "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools"
-      ]
+        "ms-vscode.cmake-tools",
+        "vadimcn.vscode-lldb"
+      ],
+      "settings": {
+        "debug.allowBreakpointsEverywhere": true,
+        "cmake.sourceDirectory": "${containerWorkspaceFolder}/services/cpp"
+      }
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "apt-get update && apt-get install -y cmake build-essential libcurl4-openssl-dev libgrpc++-dev libprotobuf-dev protobuf-compiler-grpc nlohmann-json3-dev",
+  "postCreateCommand": "bash .devcontainer/cpp/install-dependencies.sh",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"

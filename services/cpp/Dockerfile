@@ -13,7 +13,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # Install OpenTelemetry C++
 WORKDIR /tmp
-RUN git clone --depth 1 --branch v1.14.2 https://github.com/open-telemetry/opentelemetry-cpp.git && \
+RUN git clone --depth 1 --branch v1.24.0 https://github.com/open-telemetry/opentelemetry-cpp.git && \
     cd opentelemetry-cpp && \
     mkdir build && cd build && \
     cmake .. \
@@ -22,18 +22,18 @@ RUN git clone --depth 1 --branch v1.14.2 https://github.com/open-telemetry/opent
         -DWITH_OTLP_HTTP=OFF \
         -DBUILD_TESTING=OFF \
         -DWITH_EXAMPLES=OFF && \
-    cmake --build . --target install -j$(nproc)
+    cmake --build . --target install -j4
 
 WORKDIR /app
 COPY . .
-RUN mkdir build && cd build && \
-    cmake .. && \
-    cmake --build . -j$(nproc)
+RUN mkdir -p build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build . -j4
 
 FROM ubuntu:22.04
 RUN apt-get update && apt-get install -y \
     libcurl4 \
-    libgrpc++1.45 \
+    libgrpc++-dev \
     libprotobuf23 \
     && rm -rf /var/lib/apt/lists/*
 

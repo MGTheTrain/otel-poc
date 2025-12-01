@@ -17,17 +17,19 @@ include(FetchContent)
 FetchContent_Declare(
     httplib
     GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG v0.14.3
+    GIT_TAG v0.28.0
 )
 FetchContent_MakeAvailable(httplib)
 
-# Link libraries
+# Link libraries - FIXED target names
 target_link_libraries(cpp-otel-service
     PRIVATE
     opentelemetry-cpp::api
     opentelemetry-cpp::sdk
     opentelemetry-cpp::ext
-    opentelemetry-cpp::exporters_otlp
+    opentelemetry-cpp::otlp_grpc_exporter          
+    opentelemetry-cpp::otlp_grpc_metrics_exporter   
+    opentelemetry-cpp::otlp_grpc_log_record_exporter 
     opentelemetry-cpp::logs
     opentelemetry-cpp::metrics
     opentelemetry-cpp::trace
