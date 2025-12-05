@@ -7,6 +7,7 @@ use serde::Serialize;
 use std::env;
 use tracing::{info, Level};
 use tracing_subscriber::{layer::SubscriberExt, Registry};
+use tracing::info_span;
 
 #[derive(Serialize)]
 struct Message {
@@ -14,16 +15,20 @@ struct Message {
     timestamp: String,
 }
 
+#[tracing::instrument(name = "root_endpoint")]
 #[get("/")]
 async fn root() -> impl Responder {
+    let _span = info_span!("root_endpoint").entered();
     web::Json(Message {
         message: "Rust OpenTelemetry Service".to_string(),
         timestamp: chrono::Utc::now().to_rfc3339(),
     })
 }
 
+#[tracing::instrument(name = "hello_endpoint")]
 #[get("/api/hello")]
 async fn hello() -> impl Responder {
+    let _span = info_span!("hello_endpoint").entered();
     info!("Hello endpoint called from Rust service");
     
     web::Json(Message {
