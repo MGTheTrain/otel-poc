@@ -58,10 +58,34 @@ make grafana
 ![Traces](./images/grafana-jaeger-sample-traces.png)
 
 ### 2. Metrics (Prometheus)
+
 ```bash
-# In Grafana Explore → Prometheus, try:
-rate(http_server_request_count_total[5m])
-histogram_quantile(0.95, http_server_duration_milliseconds_bucket)
+# Request rate (Go, C# services)
+otel_http_server_request_duration_seconds_count
+rate(otel_http_server_request_duration_seconds_count[5m]) # per-second request rate based on the otel_http_server_request_duration_seconds_count counter, averaged over the last 5 minutes
+
+# Response size (Go service)
+otel_http_server_response_body_size_bytes_count
+rate(otel_http_server_response_body_size_bytes_count[5m]) # per-second increase of the response body size counter over the last 5 minutes
+
+# 95th percentile latency (Go service)
+histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5m])) # histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5m])) calculates the 95th percentile request duration over the last 5 minutes
+
+# Browse all HTTP metrics
+{__name__=~"otel_http.*"}
+
+# Note: Not all services export the same metrics due to varying auto-instrumentation support:
+# - Go: ✅ Full HTTP metrics (Gin auto-instrumentation)
+# - C#: Partial (client metrics only, server metrics missing)
+# - Python: Different metric names (use response_size instead of duration)
+# - Rust: ❌ No HTTP metrics (Actix has no auto-instrumentation)
+# - C++: Manual counter only
+# 
+# TODO: Add manual HTTP metric instrumentation for Rust/C++ services.
+# Refer to OpenTelemetry examples for your language:
+# - Rust: https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples
+# - Python: https://opentelemetry.io/docs/languages/python/instrumentation/
+# - C++: https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples
 ```
 
 ### 3. Logs (Loki)
