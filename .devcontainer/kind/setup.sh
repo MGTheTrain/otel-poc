@@ -15,6 +15,13 @@ echo -e "${BLUE}║                 Kind Cluster Setup Script                   
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
+# System requirements check
+echo -e "${CYAN}📋 System Requirements:${NC}"
+echo -e "${YELLOW} • Disk Space: 20-30+ GB available${NC}"
+echo -e "${YELLOW} • Memory: 16+ GB${NC}"
+echo -e "${YELLOW} • Docker: daemon running with sufficient resources${NC}"
+echo ""
+
 # Architecture detection
 if [ $(uname -m) = x86_64 ]; then
     ARCH="amd64"
