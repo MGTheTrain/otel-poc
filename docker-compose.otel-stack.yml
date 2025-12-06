@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # OpenTelemetry Collector - central hub for telemetry data
   otel-collector:
@@ -71,76 +69,76 @@ services:
       - otel-network
 
   # Microservices
-  csharp-service:
+  csharp-otel-service:
     container_name: csharp-otel-service
     build:
-      context: ./services/csharp
+      context: ./services/csharp-otel-service
       dockerfile: Dockerfile
     ports:
       - "5001:8080"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - OTEL_SERVICE_NAME=csharp-service
+      - OTEL_SERVICE_NAME=csharp-otel-service
     depends_on:
       - otel-collector
     networks:
       - otel-network
 
-  go-service:
+  go-otel-service:
     container_name: go-otel-service
     build:
-      context: ./services/go
+      context: ./services/go-otel-service
       dockerfile: Dockerfile
     ports:
       - "5002:8080"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - OTEL_SERVICE_NAME=go-service
+      - OTEL_SERVICE_NAME=go-otel-service
     depends_on:
       - otel-collector
     networks:
       - otel-network
 
-  python-service:
+  python-otel-service:
     container_name: python-otel-service
     build:
-      context: ./services/python
+      context: ./services/python-otel-service
       dockerfile: Dockerfile
     ports:
       - "5003:8080"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - OTEL_SERVICE_NAME=python-service
+      - OTEL_SERVICE_NAME=python-otel-service
     depends_on:
       - otel-collector
     networks:
       - otel-network
 
-  rust-service:
+  rust-otel-service:
     container_name: rust-otel-service
     build:
-      context: ./services/rust
+      context: ./services/rust-otel-service
       dockerfile: Dockerfile
     ports:
       - "5004:8080"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=rust-service
+      - OTEL_SERVICE_NAME=rust-otel-service
     depends_on:
       - otel-collector
     networks:
       - otel-network
 
-  cpp-service:
+  cpp-otel-service:
     container_name: cpp-otel-service
     build:
-      context: ./services/cpp
+      context: ./services/cpp-otel-service
       dockerfile: Dockerfile
     ports:
       - "5005:8080"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - OTEL_SERVICE_NAME=cpp-service
+      - OTEL_SERVICE_NAME=cpp-otel-service
     depends_on:
       - otel-collector
     networks:

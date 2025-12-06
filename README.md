@@ -10,7 +10,7 @@ make start
 
 # Or start specific services
 make start SERVICES="otel-collector jaeger prometheus loki grafana"
-make start SERVICES="python-service go-service"
+make start SERVICES="python-otel-service go-otel-service"
 
 # Generate test traffic and view results
 make test
@@ -91,7 +91,7 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 ### 3. Logs (Loki)
 ```bash
 # In Grafana Explore → Loki, try:
-{service_name="python-service"}
+{service_name="rust-otel-service"}
 {service_name=~".*-service"} |= "error"
 ```
 ![Logs](./images/grafana-loki-sample-logs.png)
@@ -112,10 +112,10 @@ Each service has a pre-configured VS Code dev container with debugging support. 
 
 **Available Commands:**
 ```bash
-make start SERVICES="svc1 svc2"     # Start specific services
-make build SERVICES="rust-service"  # Build specific service
-make logs SERVICES="python-service" # View logs
-make clean                          # Reset everything
+make build SERVICES="python-otel-service go-otel-service"  # Build specific service/s
+make start SERVICES="python-otel-service go-otel-service"  # Start specific service/s
+make logs SERVICES="python-otel-service go-otel-service"   # View service/s logs
+make clean                                                 # Reset everything
 ```
 
 ## Troubleshooting
