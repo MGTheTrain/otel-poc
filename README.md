@@ -8,16 +8,15 @@ Complete observability platform demonstrating traces, metrics and logs across C#
 # Start everything
 make start
 
-# Or start specific services
-make start SERVICES="otel-collector jaeger prometheus loki grafana"
-make start SERVICES="python-otel-service go-otel-service"
+# Or start specific services (Recommended)
+make start-infra
+make start SERVICES="python-otel-service go-otel-service csharp-otel-service rust-otel-service"
+make start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
 
 # Generate test traffic and view results
 make test
 make grafana  # Open http://localhost:3000 (admin/admin)
 ```
-
-**NOTE:** C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
 
 ## What's Included
 
@@ -101,21 +100,33 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 **Project Structure:**
 ```
 ├── services/           # Microservices (C#, Go, Python, Rust, C++)
-├── .devcontainer/      # VS Code dev containers
+├── .devcontainer/      
 ├── Makefile            # Commands (make help)
 ├── docker-compose.otel-stack.yml
 └── otel-collector-config.yml
 ```
 
 **Dev Containers:**
-Each service has a pre-configured VS Code dev container with debugging support. Launch container → `make start-infra` → set breakpoints.
+Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make start-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
 
 **Available Commands:**
 ```bash
-make build SERVICES="python-otel-service go-otel-service"  # Build specific service/s
-make start SERVICES="python-otel-service go-otel-service"  # Start specific service/s
-make logs SERVICES="python-otel-service go-otel-service"   # View service/s logs
-make clean                                                 # Reset everything
+Usage: make [target] [SERVICES="service1 service2"]
+
+Available targets:
+  help            Show this help message
+  start           Start services (use SERVICES="svc1 svc2" for specific services)
+  stop            Stop services (use SERVICES="svc1 svc2" for specific services)
+  restart         Restart services
+  logs            Show logs (use SERVICES="svc1 svc2" for specific services)
+  build           Build service images (use SERVICES="svc1 svc2" for specific services)
+  clean           Stop services and remove volumes
+  status          Show status of all services
+  test            Generate test traffic
+  start-infra     Start only infrastructure services
+  grafana         Open Grafana in browser
+  jaeger          Open Jaeger in browser
+  prometheus      Open Prometheus in browser
 ```
 
 ## Troubleshooting
@@ -133,17 +144,6 @@ Edit left side of port mappings in `docker-compose.otel-stack.yml`
 make logs SERVICES="service-name"
 make restart
 ```
-
-## Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| Instrumentation | OpenTelemetry SDK |
-| Collection | OTLP Collector (gRPC) |
-| Tracing | Jaeger |
-| Metrics | Prometheus |
-| Logs | Loki |
-| Visualization | Grafana |
 
 ## Resources
 

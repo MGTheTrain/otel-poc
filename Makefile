@@ -5,12 +5,6 @@ help: ## Show this help message
 	@echo ''
 	@echo 'Available targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@echo ''
-	@echo 'Examples:'
-	@echo '  make start                                        # Start all services'
-	@echo '  make start SERVICES="otel-collector jaeger"       # Start specific services'
-	@echo '  make build SERVICES="rust-otel-service"           # Build specific service'
-	@echo '  make logs SERVICES="python-otel-service"          # View specific logs'
 
 start: ## Start services (use SERVICES="svc1 svc2" for specific services)
 	@docker compose -f docker-compose.otel-stack.yml up -d $(SERVICES)
