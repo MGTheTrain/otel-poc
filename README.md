@@ -127,6 +127,11 @@ Available targets:
   grafana         Open Grafana in browser
   jaeger          Open Jaeger in browser
   prometheus      Open Prometheus in browser
+  kind-deploy     Deploy all services to Kind cluster (Kind cluster required - use devcontainer)
+  kind-clean      Remove all deployments from Kind cluster (Kind cluster required)
+  kind-status     Show status of Kind cluster deployments (Kind cluster required)
+  kind-logs       Show logs from Kind cluster (use SERVICES="svc1" for specific service, Kind cluster required)
+  kind-port-forward Start port-forwarding for UIs (Kind cluster required)
 ```
 
 ## Troubleshooting
