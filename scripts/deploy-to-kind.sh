@@ -81,19 +81,33 @@ loki:
 
 singleBinary:
   replicas: 1
-  persistence:
-    enabled: true
-    size: 10Gi
 
-# Disable unused components for SingleBinary mode
+# Explicitly disable all distributed components
 write:
   replicas: 0
 read:
   replicas: 0
 backend:
   replicas: 0
+ingester:
+  replicas: 0
+distributor:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0
 
-# MinIO disabled for simple dev setup
+# Disable caches
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
 minio:
   enabled: false
 
@@ -131,6 +145,11 @@ helm upgrade --install prometheus prometheus-community/prometheus \
 echo -e "${BLUE}Installing OpenTelemetry Collector...${NC}"
 cat > /tmp/otel-values.yaml <<EOF
 mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: ""  # Uses chart's default version
+
 config:
   receivers:
     otlp:
@@ -236,20 +255,57 @@ echo ""
 
 # Step 3: Build all images
 echo -e "${YELLOW}📦 Step 3/5: Building Docker images...${NC}"
-echo -e "${BLUE}Building: python, go, csharp, rust services${NC}"
-make build SERVICES="python-otel-service go-otel-service csharp-otel-service rust-otel-service"
+IMAGES_TO_BUILD=()
 
-echo -e "${BLUE}Building: cpp service${NC}"
-make build SERVICES="cpp-otel-service"
+for service in "${SERVICES[@]}"; do
+    if ! docker image inspect otel-poc-${service}:latest >/dev/null 2>&1; then
+        echo -e "${BLUE}Image otel-poc-${service}:latest not found, will build${NC}"
+        IMAGES_TO_BUILD+=("$service")
+    else
+        echo -e "${GREEN}Image otel-poc-${service}:latest already exists, skipping${NC}"
+    fi
+done
 
-echo -e "${GREEN}✓ All images built successfully${NC}"
+if [ ${#IMAGES_TO_BUILD[@]} -gt 0 ]; then
+    # Split into two groups (cpp builds separately)
+    CPP_SERVICE="cpp-otel-service"
+    OTHER_SERVICES=()
+    
+    for svc in "${IMAGES_TO_BUILD[@]}"; do
+        if [ "$svc" = "$CPP_SERVICE" ]; then
+            :  # Skip, will build separately
+        else
+            OTHER_SERVICES+=("$svc")
+        fi
+    done
+    
+    if [ ${#OTHER_SERVICES[@]} -gt 0 ]; then
+        echo -e "${BLUE}Building: ${OTHER_SERVICES[@]}${NC}"
+        make build SERVICES="${OTHER_SERVICES[*]}"
+    fi
+    
+    if [[ " ${IMAGES_TO_BUILD[@]} " =~ " ${CPP_SERVICE} " ]]; then
+        echo -e "${BLUE}Building: cpp service${NC}"
+        make build SERVICES="cpp-otel-service"
+    fi
+    
+    echo -e "${GREEN}✓ Images built successfully${NC}"
+else
+    echo -e "${GREEN}✓ All images already exist, skipping build${NC}"
+fi
 echo ""
 
-# Step 4: Load images into Kind cluster
+# Step 4: Load images into Kind cluster (only if not already loaded)
 echo -e "${YELLOW}🚀 Step 4/5: Loading images into Kind cluster...${NC}"
 for service in "${SERVICES[@]}"; do
-    echo -e "${BLUE}Loading ${service}:local into cluster...${NC}"
-    kind load docker-image ${service}:local --name ${CLUSTER_NAME}
+    IMAGE_NAME="otel-poc-${service}:latest"
+    # Check if image exists in Kind cluster
+    if docker exec ${CLUSTER_NAME}-control-plane crictl images | grep -q "otel-poc-${service}"; then
+        echo -e "${GREEN}Image ${IMAGE_NAME} already in cluster, skipping${NC}"
+    else
+        echo -e "${BLUE}Loading ${IMAGE_NAME} into cluster...${NC}"
+        kind load docker-image ${IMAGE_NAME} --name ${CLUSTER_NAME}
+    fi
 done
 echo -e "${GREEN}✓ All images loaded into Kind cluster${NC}"
 echo ""
@@ -259,11 +315,18 @@ echo -e "${YELLOW}⎈ Step 5/5: Installing service Helm charts...${NC}"
 for service in "${SERVICES[@]}"; do
     echo -e "${BLUE}Installing ${service}...${NC}"
     helm upgrade --install ${service} ./charts/services/${service} \
-        --set image.repository=${service} \
-        --set image.tag=local \
+        --set image.repository=otel-poc-${service} \
+        --set image.tag=latest \
         --set image.pullPolicy=Never \
-        --set env.OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector-opentelemetry-collector:4317 \
-        --set env.OTEL_SERVICE_NAME=${service} \
+        --set service.type=ClusterIP \
+        --set service.port=8080 \
+        --set service.targetPort=8080 \
+        --set livenessProbe.httpGet.port=8080 \
+        --set readinessProbe.httpGet.port=8080 \
+        --set-string "env[0].name=OTEL_EXPORTER_OTLP_ENDPOINT" \
+        --set-string "env[0].value=otel-collector-opentelemetry-collector:4317" \
+        --set-string "env[1].name=OTEL_SERVICE_NAME" \
+        --set-string "env[1].value=${service}" \
         --wait --timeout 2m
 done
 echo -e "${GREEN}✓ All service Helm charts installed${NC}"
@@ -288,4 +351,4 @@ echo "Grafana:    kubectl port-forward svc/grafana 3000:80"
 echo "Jaeger:     kubectl port-forward svc/jaeger-query 16686:16686"
 echo "Prometheus: kubectl port-forward svc/prometheus-server 9090:80"
 echo ""
-echo -e "${GREEN}✓ Deployment complete!${NC}"
+echo -e "${GREEN}✓ Deployment complete${NC}"
