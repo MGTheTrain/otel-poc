@@ -4,6 +4,8 @@ Complete observability platform demonstrating traces, metrics and logs across C#
 
 ## Quick Start
 
+### Docker Compose (Local Development)
+
 ```bash
 # Start everything
 make start
@@ -16,6 +18,24 @@ make start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time
 # Generate test traffic and view results
 make test
 make grafana  # Open http://localhost:3000 (admin/admin)
+```
+
+### Kubernetes Kind (Local Development)
+
+Open the matching [dev container](.devcontainer/kind/devcontainer.json) in any IDE that supports [dev containers](https://containers.dev/), then run:
+
+```bash
+# Terminal A - Deploy everything to Kind cluster
+make kind-deploy
+
+# Terminal B - Port-forward everything (observability + services)
+make kind-fwd
+
+# Terminal A - Generate test traffic
+make kind-traffic
+
+# Clean up resources
+make kind-clean
 ```
 
 ## What's Included
