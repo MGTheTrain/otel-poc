@@ -12,5 +12,16 @@
     "mounts": [
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
-     "runArgs": ["--network=host"]
+    "runArgs": ["--network=host"],
+    "forwardPorts": [3000, 9090, 16686, 5001, 5002, 5003, 5004, 5005],
+    "portsAttributes": {
+        "3000": {"label": "Grafana"},
+        "9090": {"label": "Prometheus"},
+        "16686": {"label": "Jaeger"},
+        "5001": {"label": "C# OpenTelemetry Service"},
+        "5002": {"label": "Go OpenTelemetry Service"},
+        "5003": {"label": "Python OpenTelemetry Service"},
+        "5004": {"label": "Rust OpenTelemetry Service"},
+        "5005": {"label": "C++ OpenTelemetry Service"}
+    }
 }
