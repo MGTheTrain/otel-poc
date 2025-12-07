@@ -314,6 +314,14 @@ echo ""
 echo -e "${YELLOW}⎈ Step 5/5: Installing service Helm charts...${NC}"
 for service in "${SERVICES[@]}"; do
     echo -e "${BLUE}Installing ${service}...${NC}"
+    
+    # Determine OTEL endpoint based on service
+    if [ "$service" = "rust-otel-service" ]; then
+        OTEL_ENDPOINT="http://otel-collector-opentelemetry-collector:4317"
+    else
+        OTEL_ENDPOINT="otel-collector-opentelemetry-collector:4317"
+    fi
+    
     helm upgrade --install ${service} ./charts/services/${service} \
         --set image.repository=otel-poc-${service} \
         --set image.tag=latest \
@@ -324,7 +332,7 @@ for service in "${SERVICES[@]}"; do
         --set livenessProbe.httpGet.port=8080 \
         --set readinessProbe.httpGet.port=8080 \
         --set-string "env[0].name=OTEL_EXPORTER_OTLP_ENDPOINT" \
-        --set-string "env[0].value=otel-collector-opentelemetry-collector:4317" \
+        --set-string "env[0].value=${OTEL_ENDPOINT}" \
         --set-string "env[1].name=OTEL_SERVICE_NAME" \
         --set-string "env[1].value=${service}" \
         --wait --timeout 2m
