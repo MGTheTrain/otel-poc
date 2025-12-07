@@ -11,6 +11,13 @@ NC='\033[0m'
 CLUSTER_NAME="kind"
 SERVICES=("python-otel-service" "go-otel-service" "csharp-otel-service" "rust-otel-service" "cpp-otel-service")
 
+# Chart versions (locked to tested versions)
+JAEGER_CHART_VERSION="3.3.3"           # Jaeger 1.53.0
+LOKI_CHART_VERSION="6.46.0"            # Loki 3.5.7
+PROMETHEUS_CHART_VERSION="27.50.0"     # Prometheus v3.8.0
+OTEL_CHART_VERSION="0.140.1"           # OTel Collector 0.140.1
+GRAFANA_CHART_VERSION="10.3.0"         # Grafana 12.3.0
+
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║          Build and Deploy Services to Kind Cluster          ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
@@ -57,17 +64,19 @@ echo ""
 echo -e "${YELLOW}🔭 Step 2/5: Deploying observability stack...${NC}"
 
 # Jaeger (deploy first as OTel Collector depends on it)
-echo -e "${BLUE}Installing Jaeger...${NC}"
+echo -e "${BLUE}Installing Jaeger ${JAEGER_CHART_VERSION}...${NC}"
 helm upgrade --install jaeger jaegertracing/jaeger \
-    --set provisionDataStore.cassandra=false \
-    --set allInOne.enabled=true \
-    --set storage.type=memory \
-    --set allInOne.service.type=ClusterIP \
-    --set collector.service.otlp.grpc.name=otlp-grpc \
-    --wait --timeout 3m
-
-# Loki with MinIO for production-like setup
-echo -e "${BLUE}Installing Loki (SingleBinary mode for development)...${NC}"
+  --version ${JAEGER_CHART_VERSION} \
+  --set provisionDataStore.cassandra=false \
+  --set storage.type=memory \
+  --set allInOne.enabled=true \
+  --set agent.enabled=false \
+  --set collector.enabled=false \
+  --set query.enabled=false \
+  --wait --timeout 3m
+    
+# Loki
+echo -e "${BLUE}Installing Loki ${LOKI_CHART_VERSION}...${NC}"
 cat > /tmp/loki-values.yaml <<EOF
 deploymentMode: SingleBinary
 
@@ -118,31 +127,42 @@ gateway:
 EOF
 
 helm upgrade --install loki grafana/loki \
+    --version ${LOKI_CHART_VERSION} \
     -f /tmp/loki-values.yaml \
     --wait --timeout 3m
 
-# Prometheus (deploy before OTel Collector for scraping)
-echo -e "${BLUE}Installing Prometheus...${NC}"
+# Prometheus
+echo -e "${BLUE}Installing Prometheus ${PROMETHEUS_CHART_VERSION}...${NC}"
 cat > /tmp/prometheus-values.yaml <<EOF
+alertmanager:
+  enabled: false
+kube-state-metrics:
+  enabled: true
+prometheus-node-exporter:
+  enabled: true
+pushgateway:
+  enabled: false
 server:
   service:
     type: ClusterIP
-  extraScrapeConfigs: |
-    - job_name: 'otel-collector'
-      static_configs:
-        - targets: ['otel-collector-opentelemetry-collector:8889']
-alertmanager:
-  enabled: false
-pushgateway:
-  enabled: false
+
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      - job_name: 'otel-collector'
+        scrape_interval: 15s
+        static_configs:
+          - targets: ['otel-collector-opentelemetry-collector.default.svc.cluster.local:8888']
 EOF
 
 helm upgrade --install prometheus prometheus-community/prometheus \
+    --version ${PROMETHEUS_CHART_VERSION} \
     -f /tmp/prometheus-values.yaml \
     --wait --timeout 3m
 
-# OpenTelemetry Collector with custom config
-echo -e "${BLUE}Installing OpenTelemetry Collector...${NC}"
+# OpenTelemetry Collector
+echo -e "${BLUE}Installing OpenTelemetry Collector ${OTEL_CHART_VERSION}...${NC}"
+
 cat > /tmp/otel-values.yaml <<EOF
 mode: deployment
 
@@ -158,71 +178,54 @@ config:
           endpoint: 0.0.0.0:4317
         http:
           endpoint: 0.0.0.0:4318
-  
   processors:
     batch:
       timeout: 1s
       send_batch_size: 1024
-  
   exporters:
     otlp/jaeger:
-      endpoint: jaeger-collector:4317
+      endpoint: jaeger-collector.default.svc.cluster.local:4317
       tls:
         insecure: true
-    
     prometheus:
       endpoint: "0.0.0.0:8889"
       namespace: otel
-    
     otlphttp/loki:
       endpoint: http://loki-gateway:80/otlp
       tls:
         insecure: true
-    
     debug:
       verbosity: detailed
-  
   service:
     pipelines:
       traces:
         receivers: [otlp]
         processors: [batch]
         exporters: [otlp/jaeger, debug]
-      
       metrics:
         receivers: [otlp]
         processors: [batch]
         exporters: [prometheus, debug]
-      
       logs:
         receivers: [otlp]
         processors: [batch]
         exporters: [otlphttp/loki, debug]
-
 ports:
   otlp:
     enabled: true
-    containerPort: 4317
-    servicePort: 4317
-    protocol: TCP
   otlp-http:
     enabled: true
-    containerPort: 4318
-    servicePort: 4318
-    protocol: TCP
   metrics:
     enabled: true
-    containerPort: 8889
-    servicePort: 8889
-    protocol: TCP
 EOF
 
 helm upgrade --install otel-collector open-telemetry/opentelemetry-collector \
+    --version ${OTEL_CHART_VERSION} \
     -f /tmp/otel-values.yaml \
     --wait --timeout 3m
 
-# Grafana with datasources
-echo -e "${BLUE}Installing Grafana...${NC}"
+# Grafana
+echo -e "${BLUE}Installing Grafana ${GRAFANA_CHART_VERSION}...${NC}"
 cat > /tmp/grafana-values.yaml <<EOF
 service:
   type: ClusterIP
@@ -233,20 +236,21 @@ datasources:
     datasources:
       - name: Prometheus
         type: prometheus
-        url: http://prometheus-server
+        url: http://prometheus-server:80
         isDefault: true
       - name: Jaeger
         type: jaeger
         url: http://jaeger-query:16686
       - name: Loki
         type: loki
-        url: http://loki-gateway
+        url: http://loki-gateway:80
 env:
   GF_AUTH_ANONYMOUS_ENABLED: "true"
   GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 EOF
 
 helm upgrade --install grafana grafana/grafana \
+    --version ${GRAFANA_CHART_VERSION} \
     -f /tmp/grafana-values.yaml \
     --wait --timeout 3m
 
@@ -315,7 +319,6 @@ echo -e "${YELLOW}⎈ Step 5/5: Installing service Helm charts...${NC}"
 for service in "${SERVICES[@]}"; do
     echo -e "${BLUE}Installing ${service}...${NC}"
     
-    # Determine OTEL endpoint based on service
     if [ "$service" = "rust-otel-service" ]; then
         OTEL_ENDPOINT="http://otel-collector-opentelemetry-collector:4317"
     else
@@ -345,6 +348,13 @@ echo -e "${BLUE}╔════════════════════�
 echo -e "${BLUE}║                     Deployment Summary                      ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
+echo -e "${GREEN}Chart Versions Deployed:${NC}"
+echo "  Jaeger:          ${JAEGER_CHART_VERSION} (app: 1.53.0)"
+echo "  Loki:            ${LOKI_CHART_VERSION} (app: 3.5.7)"
+echo "  Prometheus:      ${PROMETHEUS_CHART_VERSION} (app: v3.8.0)"
+echo "  OTel Collector:  ${OTEL_CHART_VERSION} (app: 0.140.1)"
+echo "  Grafana:         ${GRAFANA_CHART_VERSION} (app: 12.3.0)"
+echo ""
 echo -e "${GREEN}Observability Stack:${NC}"
 kubectl get pods -l 'app.kubernetes.io/name in (opentelemetry-collector,jaeger,prometheus,loki,grafana)'
 echo ""
@@ -359,4 +369,9 @@ echo "Grafana:    kubectl port-forward svc/grafana 3000:80"
 echo "Jaeger:     kubectl port-forward svc/jaeger-query 16686:16686"
 echo "Prometheus: kubectl port-forward svc/prometheus-server 9090:80"
 echo ""
-echo -e "${GREEN}✓ Deployment complete${NC}"
+echo -e "${YELLOW}🔍 Troubleshooting Commands:${NC}"
+echo "Check Jaeger logs:     kubectl logs -l app.kubernetes.io/name=jaeger --tail=50"
+echo "Check OTel exports:    kubectl logs -l app.kubernetes.io/name=opentelemetry-collector --tail=100"
+echo "Verify trace flow:     curl -s http://localhost:16686/api/services"
+echo ""
+echo -e "${GREEN}✓ Deployment complete with locked chart versions${NC}"
