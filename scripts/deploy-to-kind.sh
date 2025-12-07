@@ -152,7 +152,7 @@ serverFiles:
       - job_name: 'otel-collector'
         scrape_interval: 15s
         static_configs:
-          - targets: ['otel-collector-opentelemetry-collector.default.svc.cluster.local:8888']
+          - targets: ['otel-collector-opentelemetry-collector.default.svc.cluster.local:8889']
 EOF
 
 helm upgrade --install prometheus prometheus-community/prometheus \
@@ -217,6 +217,9 @@ ports:
     enabled: true
   metrics:
     enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
 EOF
 
 helm upgrade --install otel-collector open-telemetry/opentelemetry-collector \
