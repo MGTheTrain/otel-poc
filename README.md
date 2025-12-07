@@ -97,15 +97,6 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 
 ## Development
 
-**Project Structure:**
-```
-├── services/           # Microservices (C#, Go, Python, Rust, C++)
-├── .devcontainer/      
-├── Makefile            # Commands (make help)
-├── docker-compose.otel-stack.yml
-└── otel-collector-config.yml
-```
-
 **Dev Containers:**
 Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make start-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
 
@@ -129,9 +120,10 @@ Available targets:
   prometheus      Open Prometheus in browser
   kind-deploy     Deploy all services to Kind cluster (Kind cluster required - use devcontainer)
   kind-clean      Remove all deployments from Kind cluster (Kind cluster required)
-  kind-status     Show status of Kind cluster deployments (Kind cluster required)
-  kind-logs       Show logs from Kind cluster (use SERVICES="svc1" for specific service, Kind cluster required)
-  kind-port-forward Start port-forwarding for UIs (Kind cluster required)
+  kind-fwd-obs    Port-forward observability stack only
+  kind-fwd-svc    Port-forward OpenTelemetry services only
+  kind-fwd        Port-forward everything
+  kind-traffic    Generate test traffic to all services (Kind cluster required)
 ```
 
 ## Troubleshooting
