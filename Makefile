@@ -61,25 +61,22 @@ kind-deploy: ## Deploy all services to Kind cluster (Kind cluster required - use
 kind-clean: ## Remove all deployments from Kind cluster (Kind cluster required)
 	@echo "⚠️  This target requires a Kind cluster"
 	@command -v kind >/dev/null 2>&1 || { echo "❌ Kind not found."; exit 1; }
-	@echo "Cleaning up Kind deployments..."
-	@helm uninstall python-otel-service go-otel-service csharp-otel-service rust-otel-service cpp-otel-service 2>/dev/null || true
-	@helm uninstall otel-collector jaeger prometheus loki grafana 2>/dev/null || true
-	@echo "✓ Kind cluster cleaned"
+	@bash scripts/cleanup-kind.sh
 
 kind-fwd-obs: ## Port-forward observability stack only
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
-	@bash scripts/kind-port-forward.sh --obs
+	@bash scripts/port-forward-in-kind.sh --obs
 
 kind-fwd-svc: ## Port-forward OpenTelemetry services only
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
-	@bash scripts/kind-port-forward.sh --svc
+	@bash scripts/port-forward-in-kind.sh --svc
 
 kind-fwd: ## Port-forward everything (observability + services)
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
-	@bash scripts/kind-port-forward.sh --all
+	@bash scripts/port-forward-in-kind.sh --all
 
 kind-traffic: ## Generate test traffic to all services (Kind cluster required)
 	@echo "⚠️  This target requires a Kind cluster"
