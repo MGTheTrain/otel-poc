@@ -2,22 +2,69 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Python Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/services/python-otel-service/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/services/python-otel-service",
+            "env": {
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317",
+                "OTEL_SERVICE_NAME": "python-otel-service"
+            }
+        },
+        {
+            "name": "Debug Go Service",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/services/go-otel-service",
+            "cwd": "${workspaceFolder}/services/go-otel-service",
+            "env": {
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317",
+                "OTEL_SERVICE_NAME": "go-otel-service"
+            }
+        },
+        {
+            "name": "Debug C# Service",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet build csharp",
+            "program": "${workspaceFolder}/services/csharp-otel-service/bin/Debug/net9.0/OtelService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/services/csharp-otel-service",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "env": {
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317",
+                "OTEL_SERVICE_NAME": "csharp-otel-service"
+            }
+        },
+        {
             "name": "Debug Rust Service",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/services/rust/target/debug/rust-otel-service",
+            "program": "${workspaceFolder}/services/rust-otel-service/target/debug/rust-otel-service",
             "args": [],
-            "cwd": "${workspaceFolder}/services/rust",
-            "preLaunchTask": "cargo build rust"
+            "cwd": "${workspaceFolder}/services/rust-otel-service",
+            "preLaunchTask": "cargo build rust",
+            "env": {
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317",
+                "OTEL_SERVICE_NAME": "rust-otel-service"
+            }
         },
         {
             "name": "Debug C++ Service",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/services/cpp/build/cpp-otel-service",
+            "program": "${workspaceFolder}/services/cpp-otel-service/build/cpp-otel-service",
             "args": [],
-            "cwd": "${workspaceFolder}/services/cpp",
-            "preLaunchTask": "cmake build cpp"
+            "cwd": "${workspaceFolder}/services/cpp-otel-service",
+            "preLaunchTask": "cmake build cpp",
+            "env": {
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317",
+                "OTEL_SERVICE_NAME": "cpp-otel-service"
+            }
         }
     ]
 }

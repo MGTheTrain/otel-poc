@@ -2,18 +2,36 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "dotnet build csharp",
+            "type": "shell",
+            "command": "dotnet build",
+            "options": { "cwd": "${workspaceFolder}/services/csharp-otel-service" },
+            "problemMatcher": ["$msCompile"],
+            "group": "build"
+        },
+        {
+            "label": "go build",
+            "type": "shell",
+            "command": "go build -o bin/go-otel-service",
+            "options": { "cwd": "${workspaceFolder}/services/go-otel-service" },
+            "problemMatcher": ["$go"],
+            "group": "build"
+        },
+        {
             "label": "cargo build rust",
             "type": "shell",
             "command": "cargo build",
-            "options": { "cwd": "${workspaceFolder}/services/rust" },
-            "problemMatcher": ["$rustc"]
+            "options": { "cwd": "${workspaceFolder}/services/rust-otel-service" },
+            "problemMatcher": ["$rustc"],
+            "group": "build"
         },
         {
             "label": "cmake build cpp",
             "type": "shell",
             "command": "cmake --build build",
-            "options": { "cwd": "${workspaceFolder}/services/cpp" },
-            "problemMatcher": ["$gcc"]
+            "options": { "cwd": "${workspaceFolder}/services/cpp-otel-service" },
+            "problemMatcher": ["$gcc"],
+            "group": "build"
         }
     ]
 }
