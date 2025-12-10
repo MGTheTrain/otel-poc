@@ -154,7 +154,7 @@ Available targets:
 3. View logs: `docker logs otel-collector`
 
 **Port conflicts?**
-Edit left side of port mappings in `docker-compose.otel-stack.yml`
+Edit left side of port mappings in `docker-compose.yml`
 
 **Service issues?**
 ```bash

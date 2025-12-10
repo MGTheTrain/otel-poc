@@ -7,34 +7,34 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 start: ## Start services (use SERVICES="svc1 svc2" for specific services)
-	@docker compose -f docker-compose.otel-stack.yml up -d $(SERVICES)
+	@docker compose up -d $(SERVICES)
 
 stop: ## Stop services (use SERVICES="svc1 svc2" for specific services)
 	@echo "Stopping services..."
-	$(if $(SERVICES),@docker compose -f docker-compose.otel-stack.yml stop $(SERVICES),@docker compose -f docker-compose.otel-stack.yml down)
+	$(if $(SERVICES),@docker compose stop $(SERVICES),@docker compose down)
 
 restart: stop start ## Restart services
 
 logs: ## Show logs (use SERVICES="svc1 svc2" for specific services)
-	@docker compose -f docker-compose.otel-stack.yml logs -f $(SERVICES)
+	@docker compose logs -f $(SERVICES)
 
 build: ## Build service images (use SERVICES="svc1 svc2" for specific services)
 	@echo "Building service images..."
-	@docker compose -f docker-compose.otel-stack.yml build --no-cache $(SERVICES)
+	@docker compose build --no-cache $(SERVICES)
 
 clean: stop ## Stop services and remove volumes
 	@echo "Cleaning up..."
-	@docker compose -f docker-compose.otel-stack.yml down -v
+	@docker compose down -v
 	@docker system prune -f
 
 status: ## Show status of all services
-	@docker compose -f docker-compose.otel-stack.yml ps
+	@docker compose ps
 
 test: ## Generate test traffic
 	@./scripts/generate-traffic.sh
 
 start-infra: ## Start only infrastructure services
-	@docker compose -f docker-compose.otel-stack.yml up -d otel-collector jaeger prometheus loki grafana
+	@docker compose up -d otel-collector jaeger prometheus loki grafana
 
 grafana: ## Open Grafana in browser
 	@echo "Opening Grafana..."
