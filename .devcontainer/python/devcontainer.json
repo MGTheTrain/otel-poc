@@ -13,7 +13,7 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "cd services/python && pip install -r requirements.txt",
+  "postCreateCommand": "cd services/python-otel-service && pip install -r requirements.txt",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317"

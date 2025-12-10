@@ -19,7 +19,7 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "cd services/rust && cargo build",
+  "postCreateCommand": "cd services/rust-otel-service && cargo build",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"

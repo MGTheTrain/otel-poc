@@ -13,7 +13,7 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "cd services/csharp && dotnet restore OtelService.csproj",
+  "postCreateCommand": "cd services/csharp-otel-service && dotnet restore OtelService.csproj",
   "remoteUser": "vscode",
   "remoteEnv": {
     "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317"
