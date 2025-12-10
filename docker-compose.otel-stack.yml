@@ -1,11 +1,10 @@
 services:
   # OpenTelemetry Collector - central hub for telemetry data
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.140.1
+    build:
+      context: ./otel-collector
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yml"]
-    volumes:
-      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP HTTP receiver
@@ -28,13 +27,9 @@ services:
 
   # Prometheus - metrics storage
   prometheus:
-    image: prom/prometheus:v3.8.0
+    build:
+      context: ./prometheus
     container_name: prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
@@ -52,15 +47,14 @@ services:
 
   # Grafana - visualization
   grafana:
-    image: grafana/grafana:12.3.0
+    build:
+      context: ./grafana
     container_name: grafana
     ports:
       - "3000:3000"
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
       - loki
