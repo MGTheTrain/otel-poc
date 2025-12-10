@@ -16,4 +16,4 @@ cmake .. \
     -DWITH_OTLP_HTTP=OFF \
     -DBUILD_TESTING=OFF \
     -DWITH_EXAMPLES=OFF
-cmake --build . --target install -j4
+sudo cmake --build . --target install -j4
