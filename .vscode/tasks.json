@@ -28,7 +28,7 @@
         {
             "label": "cmake build cpp",
             "type": "shell",
-            "command": "cmake --build build",
+            "command": "cmake -B build . && cmake --build build --config Debug",
             "options": { "cwd": "${workspaceFolder}/services/cpp-otel-service" },
             "problemMatcher": ["$gcc"],
             "group": "build"
