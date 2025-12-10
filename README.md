@@ -18,6 +18,9 @@ make start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time
 # Generate test traffic and view results
 make test
 make grafana  # Open http://localhost:3000 (admin/admin)
+
+# Clean up docker resources
+make clean
 ```
 
 ### Kubernetes Kind (Local Development)
@@ -31,10 +34,11 @@ make kind-deploy
 # Terminal B - Port-forward everything (observability + services)
 make kind-fwd
 
-# Terminal A - Generate test traffic
+# Terminal A - Generate test traffic and view results
 make kind-traffic
+make grafana  # Open http://localhost:3000 (admin/admin)
 
-# Clean up resources
+# Clean up k8s resources
 make kind-clean
 ```
 
