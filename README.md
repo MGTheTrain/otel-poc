@@ -195,6 +195,5 @@ make restart
 
 This PoC can be migrated to Kubernetes or deployed in the cloud:
 
-- **Local testing:** Use kind or minikube; convert services to Deployments/Services, use ConfigMaps and optionally Helm charts.
 - **Cloud/On-prem:** Deploy on managed/self-hosted Kubernetes; configure persistent storage, load balancers and ingress controllers or [Gateway API](https://kubernetes.io/docs/concepts/services-networking/gateway/).
 - **Best practices:** Enable TLS, authentication/authorization, resource limits, sampling and backups for reliability.
