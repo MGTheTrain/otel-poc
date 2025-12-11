@@ -70,6 +70,7 @@ Services → OTLP (gRPC) → Collector → Jaeger/Prometheus/Loki → Grafana
 - Single API across all languages
 - Auto-instrumentation for common frameworks
 - Future-proof observability
+- Backend-agnostic (easily switch Jaeger/Tempo, Prometheus/Graphite, Loki/Elasticsearch)
 
 ## Viewing Telemetry
 
