@@ -8,19 +8,19 @@ Complete observability platform demonstrating traces, metrics and logs across C#
 
 ```bash
 # Start everything
-make start
+make compose-start
 
 # Or start specific services (Recommended)
-make start-infra
-make start SERVICES="python-otel-service go-otel-service csharp-otel-service rust-otel-service"
-make start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
+make compose-infra
+make compose-start SERVICES="python-otel-service go-otel-service csharp-otel-service rust-otel-service"
+make compose-start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
 
 # Generate test traffic and view results
-make test
+make compose-test
 make grafana  # Open http://localhost:3000 (admin/admin)
 
 # Clean up docker resources
-make clean
+make compose-clean
 ```
 
 ### Kubernetes Kind (Local Development)
@@ -29,17 +29,17 @@ Open the matching [dev container](.devcontainer/kind/devcontainer.json) in any I
 
 ```bash
 # Terminal A - Deploy everything to Kind cluster
-make kind-deploy
+make k8s-deploy
 
 # Terminal B - Port-forward everything (observability + services)
-make kind-fwd
+make k8s-fwd
 
 # Terminal A - Generate test traffic and view results
-make kind-traffic
+make k8s-traffic
 make grafana  # Open http://localhost:3000 (admin/admin)
 
 # Clean up k8s resources
-make kind-clean
+make k8s-clean
 ```
 
 ## What's Included
@@ -123,32 +123,35 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 ## Development
 
 **Dev Containers:**
-Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make start-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
+Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make compose-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
 
 **Available Commands:**
 ```bash
 Usage: make [target] [SERVICES="service1 service2"]
 
-Available targets:
-  help            Show this help message
-  start           Start services (use SERVICES="svc1 svc2" for specific services)
-  stop            Stop services (use SERVICES="svc1 svc2" for specific services)
-  restart         Restart services
-  logs            Show logs (use SERVICES="svc1 svc2" for specific services)
-  build           Build service images (use SERVICES="svc1 svc2" for specific services)
-  clean           Stop services and remove volumes
-  status          Show status of all services
-  test            Generate test traffic
-  start-infra     Start only infrastructure services
-  grafana         Open Grafana in browser
-  jaeger          Open Jaeger in browser
-  prometheus      Open Prometheus in browser
-  kind-deploy     Deploy all services to Kind cluster (Kind cluster required - use devcontainer)
-  kind-clean      Remove all deployments from Kind cluster (Kind cluster required)
-  kind-fwd-obs    Port-forward observability stack only
-  kind-fwd-svc    Port-forward OpenTelemetry services only
-  kind-fwd        Port-forward everything
-  kind-traffic    Generate test traffic to all services (Kind cluster required)
+Common targets:
+  grafana            Open Grafana in browser
+  jaeger             Open Jaeger in browser
+  prometheus         Open Prometheus in browser
+
+Docker Compose targets:
+  compose-start      Start services (use SERVICES="svc1 svc2" for specific)
+  compose-stop       Stop services
+  compose-restart    Restart services
+  compose-logs       Show logs
+  compose-build      Build service images
+  compose-clean      Stop services and remove volumes
+  compose-status     Show status of all services
+  compose-test       Generate test traffic
+  compose-infra      Start only infrastructure services
+
+Kubernetes targets:
+  k8s-deploy         Deploy all services to Kind cluster
+  k8s-clean          Remove all deployments from Kind cluster
+  k8s-fwd-obs        Port-forward observability stack only
+  k8s-fwd-svc        Port-forward OpenTelemetry services only
+  k8s-forward        Port-forward everything (observability + services)
+  k8s-traffic        Generate test traffic to all services
 ```
 
 ## Troubleshooting
@@ -164,7 +167,7 @@ Edit left side of port mappings in `docker-compose.yml`
 **Service issues?**
 ```bash
 make logs SERVICES="service-name"
-make restart
+make compose-restart
 ```
 
 ## Resources

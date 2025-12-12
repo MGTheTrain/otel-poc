@@ -288,12 +288,7 @@ if [ ${#IMAGES_TO_BUILD[@]} -gt 0 ]; then
     
     if [ ${#OTHER_SERVICES[@]} -gt 0 ]; then
         echo -e "${BLUE}Building: ${OTHER_SERVICES[@]}${NC}"
-        make build SERVICES="${OTHER_SERVICES[*]}"
-    fi
-    
-    if [[ " ${IMAGES_TO_BUILD[@]} " =~ " ${CPP_SERVICE} " ]]; then
-        echo -e "${BLUE}Building: cpp service${NC}"
-        make build SERVICES="cpp-otel-service"
+        make compose-build SERVICES="${OTHER_SERVICES[*]}"
     fi
     
     echo -e "${GREEN}✓ Images built successfully${NC}"

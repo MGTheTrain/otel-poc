@@ -1,84 +1,92 @@
-.PHONY: help start stop restart logs clean build status test start-infra grafana jaeger prometheus kind-deploy kind-clean kind-fwd-obs kind-fwd-svc kind-fwd kind-traffic
+.PHONY: help compose-start compose-stop compose-restart compose-logs compose-clean compose-build compose-status compose-test compose-infra grafana jaeger prometheus k8s-deploy k8s-clean k8s-fwd-obs k8s-fwd-svc k8s-forward k8s-traffic
 
 help: ## Show this help message
 	@echo 'Usage: make [target] [SERVICES="service1 service2"]'
 	@echo ''
-	@echo 'Available targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo 'Common targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## \[Common\]/ {printf "  \033[35m%-18s\033[0m %s\n", $$1, substr($$2, 10)}' $(MAKEFILE_LIST)
+	@echo ''
+	@echo 'Docker Compose targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^compose-[a-zA-Z_-]+:.*?## \[Compose\]/ {printf "  \033[36m%-18s\033[0m %s\n", $$1, substr($$2, 11)}' $(MAKEFILE_LIST)
+	@echo ''
+	@echo 'Kubernetes targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^k8s-[a-zA-Z_-]+:.*?## \[K8s\]/ {printf "  \033[33m%-18s\033[0m %s\n", $$1, substr($$2, 7)}' $(MAKEFILE_LIST)
 
-start: ## Start services (use SERVICES="svc1 svc2" for specific services)
+# Common Targets
+
+grafana: ## [Common] Open Grafana in browser
+	@echo "Opening Grafana..."
+	@open http://localhost:3000 2>/dev/null || xdg-open http://localhost:3000 2>/dev/null || echo "Open http://localhost:3000 in your browser"
+
+jaeger: ## [Common] Open Jaeger in browser
+	@echo "Opening Jaeger..."
+	@open http://localhost:16686 2>/dev/null || xdg-open http://localhost:16686 2>/dev/null || echo "Open http://localhost:16686 in your browser"
+
+prometheus: ## [Common] Open Prometheus in browser
+	@echo "Opening Prometheus..."
+	@open http://localhost:9090 2>/dev/null || xdg-open http://localhost:9090 2>/dev/null || echo "Open http://localhost:9090 in your browser"
+
+# Docker Compose Targets
+
+compose-start: ## [Compose] Start services (use SERVICES="svc1 svc2" for specific)
 	@docker compose up -d $(SERVICES)
 
-stop: ## Stop services (use SERVICES="svc1 svc2" for specific services)
+compose-stop: ## [Compose] Stop services
 	@echo "Stopping services..."
 	$(if $(SERVICES),@docker compose stop $(SERVICES),@docker compose down)
 
-restart: stop start ## Restart services
+compose-restart: compose-stop compose-start ## [Compose] Restart services
 
-logs: ## Show logs (use SERVICES="svc1 svc2" for specific services)
+compose-logs: ## [Compose] Show logs
 	@docker compose logs -f $(SERVICES)
 
-build: ## Build service images (use SERVICES="svc1 svc2" for specific services)
+compose-build: ## [Compose] Build service images
 	@echo "Building service images..."
 	@docker compose build --no-cache $(SERVICES)
 
-clean: stop ## Stop services and remove volumes
+compose-clean: compose-stop ## [Compose] Stop services and remove volumes
 	@echo "Cleaning up..."
 	@docker compose down -v
 	@docker system prune -f
 
-status: ## Show status of all services
+compose-status: ## [Compose] Show status of all services
 	@docker compose ps
 
-test: ## Generate test traffic
+compose-test: ## [Compose] Generate test traffic
 	@./scripts/generate-traffic.sh
 
-start-infra: ## Start only infrastructure services
+compose-infra: ## [Compose] Start only infrastructure services
 	@docker compose up -d otel-collector jaeger prometheus loki grafana
 
-grafana: ## Open Grafana in browser
-	@echo "Opening Grafana..."
-	@open http://localhost:3000 2>/dev/null || xdg-open http://localhost:3000 2>/dev/null || echo "Open http://localhost:3000 in your browser"
+# Kubernetes Targets
 
-jaeger: ## Open Jaeger in browser
-	@echo "Opening Jaeger..."
-	@open http://localhost:16686 2>/dev/null || xdg-open http://localhost:16686 2>/dev/null || echo "Open http://localhost:16686 in your browser"
-
-prometheus: ## Open Prometheus in browser
-	@echo "Opening Prometheus..."
-	@open http://localhost:9090 2>/dev/null || xdg-open http://localhost:9090 2>/dev/null || echo "Open http://localhost:9090 in your browser"
-
-# ============================================================================
-# Kind Cluster Targets (requires devcontainer setup from .devcontainer/kind/)
-# ============================================================================
-
-kind-deploy: ## Deploy all services to Kind cluster (Kind cluster required - use devcontainer)
+k8s-deploy: ## [K8s] Deploy all services to Kind cluster
 	@echo "⚠️  This target requires a Kind cluster (use provided devcontainer.json)"
 	@command -v kind >/dev/null 2>&1 || { echo "❌ Kind not found. Please use the devcontainer setup."; exit 1; }
 	@kind get clusters | grep -q "^kind$$" || { echo "❌ Kind cluster 'kind' not found. Run devcontainer setup first."; exit 1; }
 	@./scripts/deploy-to-kind.sh
 
-kind-clean: ## Remove all deployments from Kind cluster (Kind cluster required)
+k8s-clean: ## [K8s] Remove all deployments from Kind cluster
 	@echo "⚠️  This target requires a Kind cluster"
 	@command -v kind >/dev/null 2>&1 || { echo "❌ Kind not found."; exit 1; }
 	@bash scripts/cleanup-kind.sh
 
-kind-fwd-obs: ## Port-forward observability stack only
+k8s-fwd-obs: ## [K8s] Port-forward observability stack only
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
 	@bash scripts/port-forward-in-kind.sh --obs
 
-kind-fwd-svc: ## Port-forward OpenTelemetry services only
+k8s-fwd-svc: ## [K8s] Port-forward OpenTelemetry services only
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
 	@bash scripts/port-forward-in-kind.sh --svc
 
-kind-fwd: ## Port-forward everything (observability + services)
+k8s-forward: ## [K8s] Port-forward everything (observability + services)
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
 	@bash scripts/port-forward-in-kind.sh --all
 
-kind-traffic: ## Generate test traffic to all services (Kind cluster required)
+k8s-traffic: ## [K8s] Generate test traffic to all services
 	@echo "⚠️  This target requires a Kind cluster"
 	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
 	@./scripts/generate-kind-traffic.sh

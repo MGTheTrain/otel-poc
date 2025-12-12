@@ -2,7 +2,7 @@ services:
   # OpenTelemetry Collector - central hub for telemetry data
   otel-collector:
     build:
-      context: ./otel-collector
+      context: ./infra/otel-collector
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yml"]
     ports:
@@ -28,7 +28,7 @@ services:
   # Prometheus - metrics storage
   prometheus:
     build:
-      context: ./prometheus
+      context: ./infra/prometheus
     container_name: prometheus
     ports:
       - "9090:9090"
@@ -48,7 +48,7 @@ services:
   # Grafana - visualization
   grafana:
     build:
-      context: ./grafana
+      context: ./infra/grafana
     container_name: grafana
     ports:
       - "3000:3000"
