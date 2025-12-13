@@ -42,7 +42,7 @@ compose-logs: ## [Compose] Show logs
 
 compose-build: ## [Compose] Build service images
 	@echo "Building service images..."
-	@docker compose build --no-cache $(SERVICES)
+	@docker compose build $(SERVICES)
 
 compose-clean: compose-stop ## [Compose] Stop services and remove volumes
 	@echo "Cleaning up..."
