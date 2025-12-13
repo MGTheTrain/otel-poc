@@ -17,7 +17,7 @@ make compose-start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- 
 
 # Generate test traffic and view results
 make compose-test
-make grafana  # Open http://localhost:3000 (admin/admin)
+make open-grafana  # Open http://localhost:3000 (admin/admin)
 
 # Clean up docker resources
 make compose-clean
@@ -36,7 +36,7 @@ make k8s-fwd
 
 # Terminal A - Generate test traffic and view results
 make k8s-traffic
-make grafana  # Open http://localhost:3000 (admin/admin)
+make open-grafana  # Open http://localhost:3000 (admin/admin)
 
 # Clean up k8s resources
 make k8s-clean
@@ -76,7 +76,7 @@ Services → OTLP (gRPC) → Collector → Jaeger/Prometheus/Loki → Grafana
 
 ### 1. Traces (Jaeger)
 ```bash
-make grafana
+make open-grafana
 # Navigate to: Explore → Jaeger → Select service
 ```
 ![Traces](./images/grafana-jaeger-sample-traces.png)
@@ -130,9 +130,9 @@ Each service has a pre-configured [dev container](https://containers.dev/) with 
 Usage: make [target] [SERVICES="service1 service2"]
 
 Common targets:
-  grafana            Open Grafana in browser
-  jaeger             Open Jaeger in browser
-  prometheus         Open Prometheus in browser
+  open-grafana       Open Grafana in browser
+  open-jaeger        Open Jaeger in browser
+  open-prometheus    Open Prometheus in browser
 
 Docker Compose targets:
   compose-start      Start services (use SERVICES="svc1 svc2" for specific)
