@@ -1,4 +1,4 @@
-.PHONY: help compose-start compose-stop compose-restart compose-logs compose-clean compose-build compose-status compose-test compose-infra grafana jaeger prometheus k8s-deploy k8s-clean k8s-fwd-obs k8s-fwd-svc k8s-forward k8s-traffic
+.PHONY: help compose-start compose-stop compose-restart compose-logs compose-clean compose-build compose-status compose-test compose-infra open-grafana open-jaeger open-prometheus k8s-deploy k8s-clean k8s-fwd-obs k8s-fwd-svc k8s-forward k8s-traffic
 
 help: ## Show this help message
 	@echo 'Usage: make [target] [SERVICES="service1 service2"]'
@@ -14,15 +14,15 @@ help: ## Show this help message
 
 # Common Targets
 
-grafana: ## [Common] Open Grafana in browser
+open-grafana: ## [Common] Open Grafana in browser
 	@echo "Opening Grafana..."
 	@open http://localhost:3000 2>/dev/null || xdg-open http://localhost:3000 2>/dev/null || echo "Open http://localhost:3000 in your browser"
 
-jaeger: ## [Common] Open Jaeger in browser
+open-jaeger: ## [Common] Open Jaeger in browser
 	@echo "Opening Jaeger..."
 	@open http://localhost:16686 2>/dev/null || xdg-open http://localhost:16686 2>/dev/null || echo "Open http://localhost:16686 in your browser"
 
-prometheus: ## [Common] Open Prometheus in browser
+open-prometheus: ## [Common] Open Prometheus in browser
 	@echo "Opening Prometheus..."
 	@open http://localhost:9090 2>/dev/null || xdg-open http://localhost:9090 2>/dev/null || echo "Open http://localhost:9090 in your browser"
 
