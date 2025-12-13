@@ -53,7 +53,7 @@ compose-status: ## [Compose] Show status of all services
 	@docker compose ps
 
 compose-test: ## [Compose] Generate test traffic
-	@./scripts/generate-traffic.sh
+	@bash scripts/generate-traffic.sh
 
 compose-infra: ## [Compose] Start only infrastructure services
 	@docker compose up -d otel-collector jaeger prometheus loki grafana
@@ -61,32 +61,19 @@ compose-infra: ## [Compose] Start only infrastructure services
 # Kubernetes Targets
 
 k8s-deploy: ## [K8s] Deploy all services to Kind cluster
-	@echo "⚠️  This target requires a Kind cluster (use provided devcontainer.json)"
-	@command -v kind >/dev/null 2>&1 || { echo "❌ Kind not found. Please use the devcontainer setup."; exit 1; }
-	@kind get clusters | grep -q "^kind$$" || { echo "❌ Kind cluster 'kind' not found. Run devcontainer setup first."; exit 1; }
-	@./scripts/deploy-to-kind.sh
+	@bash scripts/deploy-to-kind.sh
 
 k8s-clean: ## [K8s] Remove all deployments from Kind cluster
-	@echo "⚠️  This target requires a Kind cluster"
-	@command -v kind >/dev/null 2>&1 || { echo "❌ Kind not found."; exit 1; }
 	@bash scripts/cleanup-kind.sh
 
 k8s-fwd-obs: ## [K8s] Port-forward observability stack only
-	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
-	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
 	@bash scripts/port-forward-in-kind.sh --obs
 
 k8s-fwd-svc: ## [K8s] Port-forward OpenTelemetry services only
-	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
-	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
 	@bash scripts/port-forward-in-kind.sh --svc
 
 k8s-forward: ## [K8s] Port-forward everything (observability + services)
-	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
-	@kubectl cluster-info >/dev/null 2>&1 || { echo "❌ Kind cluster not running."; exit 1; }
 	@bash scripts/port-forward-in-kind.sh --all
 
 k8s-traffic: ## [K8s] Generate test traffic to all services
-	@echo "⚠️  This target requires a Kind cluster"
-	@command -v kubectl >/dev/null 2>&1 || { echo "❌ kubectl not found."; exit 1; }
-	@./scripts/generate-kind-traffic.sh
+	@bash scripts/generate-kind-traffic.sh
