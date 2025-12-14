@@ -172,17 +172,23 @@ make compose-restart
 
 ## Resources
 
-- [OpenTelemetry Docs](https://opentelemetry.io/docs/)
-- [List of available OpenTelemetry Collector exporters](https://opentelemetry.io/docs/collector/components/exporter/)
+### Technical Documentation
+
 - [Jaeger Docs](https://www.jaegertracing.io/docs/)
-- [Prometheus Docs](https://prometheus.io/docs/)
-- [Loki Docs](https://grafana.com/docs/loki/)
 - [Grafana Docs](https://grafana.com/docs/)
 - [OpenTelemetry Rust Examples](https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples)
 - [OpenTelemetry C++ Examples](https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples)
 - [OpenTelemetry Go Examples](https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/examples)
-- [OpenTelemetry NET Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples)
+- [OpenTelemetry .NET Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples)
 - [OpenTelemetry Python Getting Started](https://opentelemetry.io/docs/languages/python/getting-started/)
+- [OpenTelemetry Docs](https://opentelemetry.io/docs/)
+- [OpenTelemetry Collector Documentation](https://opentelemetry.io/docs/collector/)
+- [Prometheus Docs](https://prometheus.io/docs/)
+- [Loki Docs](https://grafana.com/docs/loki/)
+
+### ADRs
+
+- [ADR-001: OpenTelemetry Collector for Centralized Observability Pipeline](./docs/ADR-001-CENTRALIZED-OBSERVABILITY.md)
 
 ## Common Use Cases
 
