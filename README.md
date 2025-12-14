@@ -193,10 +193,10 @@ make compose-restart
 ## Common Use Cases
 
 ### Debugging a Slow Request
-1. Find Jaeger traces by trace ID or time in Grafana or Jaeger dashboard
+1. Find Jaeger traces by trace ID or time in Grafana or Jaeger
 2. Identify slow span/operation
 3. Check metrics for that service in Grafana
-4. View logs from that timeframe in Loki
+4. View logs from that timeframe in Grafana
 5. Fix and verify with new traces
 
 ### Performance Monitoring
