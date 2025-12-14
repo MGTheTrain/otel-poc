@@ -47,9 +47,9 @@ Chosen option: **OpenTelemetry Collector (Option 1)**, because it provides vendo
 Success criteria met:
 - All 5 languages sending telemetry via OTLP to collector
 - Traces visible in Jaeger, metrics in Prometheus, logs in Loki
-- Backend switch tested (Jaeger → Zipkin requires only collector config change)
 
 Success criteria to be addressed:
+- Backend switch tested (Jaeger → Zipkin requires only collector config change)
 - Centralized sampling and filtering working
 - Zero code changes needed to switch backends
 
