@@ -53,6 +53,10 @@ Success criteria to be addressed:
 - Centralized sampling and filtering working
 - Zero code changes needed to switch backends
 
+Post-Decision Testing:
+1. Backend switch test: `scripts/test-backend-switch.sh` (**TODO**)
+2. Performance: `make compose-test` (generates load)
+
 ## Pros and Cons of the Options
 
 ### Option 1: OpenTelemetry Collector (Chosen)
@@ -251,11 +255,6 @@ All via collector config updates only
 - Self-hosted (Production): ~$200-500/month (K8s cluster + storage)
 - Grafana Cloud: ~$500-2000/month (pay-as-you-go)
 - Datadog APM: ~$2000-5000/month (10-host example)
-
-**Testing**:
-- Collector health: `docker logs otel-collector`
-- Backend switch test: `scripts/test-backend-switch.sh` (**TODO**)
-- Performance: `make compose-test` (generates load)
 
 ---
 
