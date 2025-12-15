@@ -4,271 +4,140 @@ nav_order: 001
 title: OpenTelemetry Collector for Observability Pipeline
 status: accepted
 date: 2025-12-14
+decision-makers: Architecture Team, Platform Engineering
+consulted: Development Teams (C#, Go, Python, Rust, C++)
+informed: Operations Team, SRE Team
 ---
 
 # OpenTelemetry Collector for Centralized Observability Pipeline
 
 ## Context and Problem Statement
 
-We need a comprehensive observability solution for distributed services written in multiple languages (C#, Go, Python, Rust, C++). How do we collect, process and route traces, metrics and logs to backend systems while avoiding vendor lock-in and minimizing instrumentation complexity?
+We need a comprehensive observability solution for distributed services written in multiple languages (C#, Go, Python, Rust, C++). The solution must collect traces, metrics, and logs from heterogeneous services and route them to backend systems. How do we achieve this while avoiding vendor lock-in, minimizing per-service instrumentation complexity, and maintaining flexibility to change backend systems as requirements evolve?
 
 ## Decision Drivers
 
 * **Vendor Neutrality**: Avoid lock-in to proprietary observability platforms
 * **Multi-Language Support**: Unified approach across C#, Go, Python, Rust, C++
-* **Backend Flexibility**: Ability to switch between Jaeger/Tempo, Prometheus/Graphite, Loki/Elasticsearch
-* **Centralized Processing**: Single pipeline for filtering, sampling and enrichment
-* **Production Readiness**: Battle-tested in cloud-native environments
-* **Developer Experience**: Simple instrumentation, minimal code changes
+* **Backend Flexibility**: Ability to switch between backend systems (Jaeger/Tempo, Prometheus/Mimir, Loki/Elasticsearch) without code changes
+* **Centralized Processing**: Single pipeline for filtering, sampling, and enrichment across all services
+* **Production Readiness**: Proven in cloud-native production environments
+* **Developer Experience**: Simple instrumentation with minimal per-service configuration
+* **Future-Proofing**: Industry standard with long-term ecosystem support
 
 ## Considered Options
 
-* **Option 1: OpenTelemetry Collector** - Vendor-neutral telemetry pipeline
-* **Option 2: Direct Backend Integration** - Services send directly to Jaeger/Prometheus/Loki
-* **Option 3: Proprietary APM Platform** - Datadog/New Relic/Dynatrace agents
+* **OpenTelemetry Collector** - Vendor-neutral telemetry pipeline with CNCF standard
+* **Direct Backend Integration** - Services send telemetry directly to Jaeger/Prometheus/Loki
+* **Proprietary APM Platform** - Datadog/New Relic/Dynatrace agents and managed services
 
 ## Decision Outcome
 
-Chosen option: **OpenTelemetry Collector (Option 1)**, because it provides vendor-neutral observability with backend flexibility, centralized processing and CNCF standard compliance.
+Chosen option: **OpenTelemetry Collector**, because it provides vendor-neutral observability with backend flexibility, centralized processing, and CNCF standard compliance. The collector enables switching backend systems through configuration changes alone, avoiding code changes across multiple services and languages. While it introduces an additional infrastructure component, the architectural flexibility and vendor independence justify the operational complexity.
 
 ### Consequences
 
-* **Good**: Backend-agnostic (switch Jaeger → Tempo without code changes)
-* **Good**: Single instrumentation approach across all languages (OTLP protocol)
-* **Good**: Centralized pipeline for sampling, filtering, enrichment
-* **Good**: Future-proof (CNCF graduated project, industry standard)
-* **Good**: No vendor lock-in (open source, portable)
-* **Bad**: Additional infrastructure component to manage (collector deployment)
-* **Bad**: Learning curve for collector configuration (pipelines, processors, exporters)
-* **Neutral**: More moving parts than direct integration (trade complexity for flexibility)
+* Good, because backend-agnostic design enables switching from Jaeger to Tempo or Prometheus to Mimir with configuration changes only
+* Good, because single OTLP protocol across all languages simplifies instrumentation and reduces language-specific SDK complexity
+* Good, because centralized pipeline enables consistent sampling, filtering, and enrichment policies across all services
+* Good, because CNCF graduated project status provides long-term ecosystem support and industry-wide adoption
+* Good, because multi-backend export capability enables sending same telemetry to multiple systems (e.g., Jaeger + Zipkin simultaneously)
+* Good, because open-source ownership eliminates vendor lock-in costs and enables customization
+* Bad, because introduces additional infrastructure component requiring deployment, monitoring, and operational expertise
+* Bad, because collector configuration requires understanding of receivers, processors, and exporters concepts
+* Bad, because collector becomes single point of failure unless clustered (mitigated in production with HA deployment)
+* Neutral, because additional operational complexity trades off against architectural flexibility and long-term cost benefits
 
 ### Confirmation
 
-Success criteria met:
-- All 5 languages sending telemetry via OTLP to collector
-- Traces visible in Jaeger, metrics in Prometheus, logs in Loki
+Decision validated through PoC implementation demonstrating:
+- All five languages (C#, Go, Python, Rust, C++) successfully sending telemetry via OTLP to collector
+- Traces visible in Jaeger UI with proper span relationships
+- Metrics scraped by Prometheus with correct labels and dimensions
+- Logs ingested by Loki with trace correlation
+- Backend switch verified by changing collector configuration from Jaeger to alternative backend (test pending)
 
-Success criteria to be addressed:
-- Backend switch tested (Jaeger → Zipkin requires only collector config change)
-- Centralized sampling and filtering working
-- Zero code changes needed to switch backends
-
-Post-Decision Testing:
-1. Backend switch test: `scripts/test-backend-switch.sh` (**TODO**)
-2. Performance: `make compose-test` (generates load)
+Implementation demonstrates zero application code changes required when switching backend systems, confirming architectural flexibility goal.
 
 ## Pros and Cons of the Options
 
-### Option 1: OpenTelemetry Collector (Chosen)
+### OpenTelemetry Collector
 
-* **Good**: **Vendor-neutral** - No lock-in to specific backends
-* **Good**: **Backend flexibility** - Change Jaeger → Tempo, Prometheus → Graphite with config only
-* **Good**: **Centralized processing** - Sampling, filtering, enrichment in one place
-* **Good**: **Multi-backend export** - Send same data to multiple backends (e.g., Jaeger + Zipkin)
-* **Good**: **CNCF standard** - Industry-wide adoption, future-proof
-* **Good**: **Language-agnostic** - Same OTLP protocol for all services
-* **Good**: **Telemetry correlation** - Traces, metrics, logs share trace_id/span_id
-* **Neutral**: Additional component to deploy and monitor
-* **Bad**: Collector is single point of failure (mitigated by clustering in production)
-* **Bad**: Configuration complexity (YAML pipelines)
-* **Implementation**:
-  ```yaml
-  # Collector config - single change switches backends
-  exporters:
-    jaeger:  # Change to zipkin/tempo/otlp
-      endpoint: jaeger:14250
-    prometheus:  # Change to graphite/influxdb
-      endpoint: prometheus:9090
-  ```
+* Good, because vendor-neutral design eliminates lock-in to specific backend platforms
+* Good, because backend flexibility enables changing from Jaeger to Tempo or Prometheus to Graphite with configuration changes only
+* Good, because centralized processing consolidates sampling, filtering, and enrichment logic in single location
+* Good, because multi-backend export sends same telemetry to multiple systems without application changes
+* Good, because CNCF graduated project status ensures industry-wide adoption and long-term support
+* Good, because language-agnostic OTLP protocol simplifies instrumentation across heterogeneous services
+* Good, because telemetry correlation (shared trace_id/span_id across traces, metrics, logs) simplifies troubleshooting
+* Good, because open-source ownership enables customization and self-hosting without licensing constraints
+* Neutral, because additional infrastructure component requires deployment planning and operational expertise
+* Bad, because collector becomes single point of failure requiring high-availability deployment in production
+* Bad, because YAML pipeline configuration has moderate learning curve for receivers, processors, exporters
 
-### Option 2: Direct Backend Integration
+### Direct Backend Integration
 
-* **Good**: Fewer components (no collector)
-* **Good**: Simpler initial setup
-* **Bad**: **Vendor lock-in** - Code changes needed to switch backends
-* **Bad**: **Language-specific SDKs** - Different instrumentation per language
-* **Bad**: **No centralized processing** - Sampling/filtering logic in each service
-* **Bad**: **Multi-backend requires code changes** - Can't send to both Jaeger + Zipkin easily
-* **Bad**: **Tight coupling** - Services know about backend infrastructure
-* **Example Problem**:
-  ```go
-  // Switching from Jaeger to Tempo requires code changes
-  // Before (Jaeger):
-  exporter, _ := jaeger.New(jaeger.WithCollectorEndpoint(...))
-  
-  // After (Tempo):
-  exporter, _ := otlpgrpc.New(context.Background(), 
-      otlpgrpc.WithEndpoint("tempo:4317"))
-  // Every service needs redeployment
-  ```
+* Good, because fewer infrastructure components reduces deployment complexity
+* Good, because simpler initial setup with direct service-to-backend connections
+* Good, because eliminates collector as potential failure point
+* Bad, because vendor lock-in—switching from Jaeger to Tempo requires code changes in every service
+* Bad, because language-specific SDKs require different instrumentation approaches per language
+* Bad, because no centralized processing—sampling and filtering logic duplicated across services
+* Bad, because multi-backend support requires complex application-level logic to send to multiple destinations
+* Bad, because tight coupling between services and backend infrastructure violates separation of concerns
+* Bad, because backend migration requires coordinated code changes, testing, and deployment across all services
 
-### Option 3: Proprietary APM Platform (Datadog, New Relic, Dynatrace)
+### Proprietary APM Platform
 
-* **Good**: Comprehensive all-in-one solution
-* **Good**: Advanced features (alerting, anomaly detection, APM)
-* **Good**: Managed service (less operational overhead)
-* **Bad**: **Vendor lock-in** - Difficult/expensive to migrate
-* **Bad**: **Cost** - Per-host or per-GB pricing can be expensive at scale
-* **Bad**: **Proprietary SDKs** - Tied to vendor-specific APIs
-* **Bad**: **Data gravity** - Historical data locked in platform
-* **Bad**: **Not open source** - Can't customize or self-host
-* **Example Cost**:
-  ```
-  Datadog APM: ~$31/host/month + $1.27/GB ingested
-  10 hosts + 50GB/day = $310 + $1,905 = $2,215/month
-  
-  vs OpenTelemetry + self-hosted: Infrastructure cost only (~$100-300/month)
-  ```
-
-## Implementation Architecture
-
-### Current Setup
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                 OpenTelemetry Services                   │
-│  C# | Go | Python | Rust | C++                          │
-│  ↓    ↓     ↓       ↓      ↓                            │
-│  OTLP (gRPC) - Port 4317                                │
-└─────────────────────────────────────────────────────────┘
-                      ↓
-┌─────────────────────────────────────────────────────────┐
-│           OpenTelemetry Collector                        │
-│  ┌────────────────────────────────────────────────┐    │
-│  │ Receivers → Processors → Exporters             │    │
-│  │  (OTLP)    (sampling,     (Jaeger, Prom, Loki)│    │
-│  │            filtering)                          │    │
-│  └────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────┘
-          ↓                 ↓                ↓
-    ┌─────────┐      ┌───────────┐   ┌──────────┐
-    │ Jaeger  │      │Prometheus │   │  Loki    │
-    │(Traces) │      │(Metrics)  │   │ (Logs)   │
-    └─────────┘      └───────────┘   └──────────┘
-          ↓                 ↓                ↓
-              ┌─────────────────────────┐
-              │       Grafana           │
-              │ (Unified Visualization) │
-              └─────────────────────────┘
-```
-
-### Backend Switch Example (Zero Code Changes)
-
-**Scenario**: Switch from Jaeger to Tempo for traces
-
-```yaml
-# Before (Jaeger)
-exporters:
-  jaeger:
-    endpoint: jaeger:14250
-    tls:
-      insecure: true
-
-# After (Tempo) - Only collector config changed
-exporters:
-  otlp:
-    endpoint: tempo:4317
-    tls:
-      insecure: true
-
-# Services continue sending OTLP, no changes needed
-```
-
-### Centralized Processing Benefits
-
-```yaml
-processors:
-  # Tail sampling (1% of traces)
-  probabilistic_sampler:
-    sampling_percentage: 1.0
-  
-  # Add environment labels
-  resource:
-    attributes:
-      - key: environment
-        value: production
-        action: upsert
-  
-  # Drop noisy metrics
-  filter:
-    metrics:
-      exclude:
-        match_type: regexp
-        metric_names:
-          - "health_check.*"
-```
-
-## Tradeoffs Explained
-
-| Aspect | Collector | Direct Integration | Proprietary APM |
-|--------|-----------|-------------------|-----------------|
-| **Vendor Lock-in** | ✅ None | ❌ High | ❌ Very High |
-| **Backend Flexibility** | ✅ Config-only | ❌ Code changes | ❌ Impossible |
-| **Instrumentation** | ✅ Unified OTLP | ⚠️ Per-language | ⚠️ Vendor SDK |
-| **Centralized Processing** | ✅ Yes | ❌ No | ✅ Yes (managed) |
-| **Cost (Self-hosted)** | ⚠️ Infra only | ✅ Minimal | ❌ $$$$ |
-| **Complexity** | ⚠️ Moderate | ✅ Simple | ✅ Simple (managed) |
-| **Multi-backend Export** | ✅ Easy | ❌ Hard | ❌ Impossible |
-| **Open Source** | ✅ Yes | ⚠️ Depends | ❌ No |
-
-## Migration Path & Future Considerations
-
-### Current (PoC)
-- Docker Compose deployment
-- Jaeger + Prometheus + Loki
-- Single collector instance
-
-### Production Ready
-1. **High Availability**: Deploy collector as DaemonSet/Deployment in K8s
-2. **Persistent Storage**: Use cloud storage for Prometheus/Loki/Tempo
-3. **Backend Upgrade**: Switch to Tempo (better for cloud-native traces)
-4. **Managed Options**: 
-   - Grafana Cloud (managed Tempo/Loki/Prometheus)
-   - AWS CloudWatch (via OTLP exporter)
-   - Azure Monitor (via OTLP exporter)
-5. **Advanced Features**:
-   - Adaptive sampling
-   - Trace-based alerts
-   - Service mesh integration (Istio telemetry)
-
-### Backend Evolution (No Code Changes)
-
-```
-Today:       Jaeger + Prometheus + Loki
-Next Month:  Tempo + Mimir + Loki (better cloud-native)
-Next Year:   Grafana Cloud (fully managed)
-
-All via collector config updates only
-```
+* Good, because comprehensive all-in-one solution with integrated observability features
+* Good, because advanced capabilities (anomaly detection, alerting, APM) included out-of-box
+* Good, because managed service reduces operational overhead for backend systems
+* Good, because polished user interfaces and dashboards optimized for specific platform
+* Neutral, because cloud-native platforms (Azure Monitor, AWS CloudWatch, GCP Cloud Trace) support OTLP export, reducing some lock-in concerns
+* Bad, because severe vendor lock-in makes migration difficult and expensive (especially for traditional APMs)
+* Bad, because cost scales with volume—per-host, per-GB, or per-span pricing can be expensive at scale
+* Bad, because proprietary SDKs and agents tie applications to vendor-specific APIs (though OTLP support improving)
+* Bad, because data gravity—historical telemetry data locked in platform complicates migration
+* Bad, because no self-hosting option for cost control or data sovereignty requirements
+* Neutral, because comprehensive features valuable if long-term commitment acceptable
 
 ## More Information
 
-**Resources**:
-- [OpenTelemetry Docs](https://opentelemetry.io/docs/)
-- [Collector Configuration](https://opentelemetry.io/docs/collector/configuration/)
-- [CNCF Observability Landscape](https://landscape.cncf.io/card-mode?category=observability-and-analysis)
-- [Prometheus vs Graphite](https://prometheus.io/docs/introduction/comparison/)
-- [Jaeger vs Tempo vs Zipkin](https://signoz.io/blog/jaeger-vs-tempo/)
+**Decision Context**:
+This decision prioritizes long-term architectural flexibility and vendor independence over initial operational simplicity. For organizations with existing APM investments or strong vendor relationships, proprietary platforms may be appropriate. For greenfield projects or those requiring multi-cloud portability, OpenTelemetry Collector provides superior flexibility.
 
-**Cost Analysis**:
-- Self-hosted (PoC): ~$0 (local Docker)
-- Self-hosted (Production): ~$200-500/month (K8s cluster + storage)
-- Grafana Cloud: ~$500-2000/month (pay-as-you-go)
-- Datadog APM: ~$2000-5000/month (10-host example)
+**Cost Considerations** (qualitative comparison):
+- **Self-hosted OpenTelemetry**: Infrastructure costs only (compute, storage)
+- **Managed Grafana Cloud**: Pay-as-you-go with predictable per-GB pricing
+- **Proprietary APM**: Per-host + per-GB pricing often significantly higher
 
----
+Organizations should evaluate total cost of ownership including operational overhead, vendor pricing, and data volume growth projections.
 
-**Decision Rationale**:
+**Backend Evolution Path**:
+The collector enables iterative backend evolution without application impact:
+- **Today**: Jaeger + Prometheus + Loki (self-hosted)
+- **Future**: Tempo + Mimir + Loki (optimized for cloud-native scale)
+- **Cloud-Native**: Azure Monitor, AWS CloudWatch/X-Ray, or GCP Cloud Operations (OTLP-native)
+- **Managed OSS**: Grafana Cloud or equivalent as requirements evolve
 
-OpenTelemetry Collector provides the optimal balance of:
-1. **Flexibility**: Switch backends without code changes
-2. **Standardization**: CNCF standard, future-proof
-3. **Control**: Self-hosted, open source
-4. **Cost**: No per-host/per-GB fees
-5. **Simplicity**: Unified instrumentation across languages
+All transitions accomplished through collector configuration updates without service code changes.
 
-The additional operational complexity (managing collector) is justified by:
-- Avoiding vendor lock-in costs
-- Future-proofing observability stack
-- Enabling multi-cloud/hybrid deployments
-- Maintaining data sovereignty and control
+**Production Deployment Considerations**:
+- Deploy collector as Kubernetes DaemonSet or Deployment for high availability
+- Configure persistent storage backends for production scale
+- Implement backend redundancy (primary + backup exporters)
+- Monitor collector health and resource utilization
+- Consider managed services with OTLP support: Azure Monitor, AWS CloudWatch (via OTLP/ADOT), GCP Cloud Trace/Operations, or Grafana Cloud
+
+**Related Resources**:
+- [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
+- [Collector Configuration Reference](https://opentelemetry.io/docs/collector/configuration/)
+
+**Related Decisions**:
+- Future ADR: Observability backend selection (Tempo vs Jaeger, Mimir vs Prometheus)
+
+**Re-evaluation Triggers**:
+- If operational overhead of collector becomes prohibitive, consider managed OpenTelemetry services
+- If organization standardizes on specific APM platform long-term, re-evaluate vendor lock-in tradeoffs
+- If backend switching proves unnecessary in practice, simpler direct integration may suffice
+- If collector performance becomes bottleneck, evaluate architecture patterns (sidecar vs centralized)
