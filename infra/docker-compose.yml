@@ -2,7 +2,7 @@ services:
   # OpenTelemetry Collector - central hub for telemetry data
   otel-collector:
     build:
-      context: ./infra/otel-collector
+      context: ./otel-collector
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yml"]
     ports:
@@ -28,7 +28,7 @@ services:
   # Prometheus - metrics storage
   prometheus:
     build:
-      context: ./infra/prometheus
+      context: ./prometheus
     container_name: prometheus
     ports:
       - "9090:9090"
@@ -48,7 +48,7 @@ services:
   # Grafana - visualization
   grafana:
     build:
-      context: ./infra/grafana
+      context: ./grafana
     container_name: grafana
     ports:
       - "3000:3000"
@@ -66,7 +66,7 @@ services:
   csharp-otel-service:
     container_name: csharp-otel-service
     build:
-      context: ./services/csharp-otel-service
+      context: ../services/csharp-otel-service
       dockerfile: Dockerfile
     ports:
       - "5001:8080"
@@ -81,7 +81,7 @@ services:
   go-otel-service:
     container_name: go-otel-service
     build:
-      context: ./services/go-otel-service
+      context: ../services/go-otel-service
       dockerfile: Dockerfile
     ports:
       - "5002:8080"
@@ -96,7 +96,7 @@ services:
   python-otel-service:
     container_name: python-otel-service
     build:
-      context: ./services/python-otel-service
+      context: ../services/python-otel-service
       dockerfile: Dockerfile
     ports:
       - "5003:8080"
@@ -111,7 +111,7 @@ services:
   rust-otel-service:
     container_name: rust-otel-service
     build:
-      context: ./services/rust-otel-service
+      context: ../services/rust-otel-service
       dockerfile: Dockerfile
     ports:
       - "5004:8080"
@@ -126,7 +126,7 @@ services:
   cpp-otel-service:
     container_name: cpp-otel-service
     build:
-      context: ./services/cpp-otel-service
+      context: ../services/cpp-otel-service
       dockerfile: Dockerfile
     ports:
       - "5005:8080"

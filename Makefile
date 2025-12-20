@@ -29,34 +29,34 @@ open-prometheus: ## [Common] Open Prometheus in browser
 # Docker Compose Targets
 
 compose-start: ## [Compose] Start services (use SERVICES="svc1 svc2" for specific)
-	@docker compose up -d $(SERVICES)
+	@docker compose -f infra/docker-compose.yml up -d $(SERVICES)
 
 compose-stop: ## [Compose] Stop services
 	@echo "Stopping services..."
-	$(if $(SERVICES),@docker compose stop $(SERVICES),@docker compose down)
+	$(if $(SERVICES),@docker compose -f infra/docker-compose.yml stop $(SERVICES),@docker compose -f infra/docker-compose.yml down)
 
 compose-restart: compose-stop compose-start ## [Compose] Restart services
 
 compose-logs: ## [Compose] Show logs
-	@docker compose logs -f $(SERVICES)
+	@docker compose -f infra/docker-compose.yml logs -f $(SERVICES)
 
 compose-build: ## [Compose] Build service images
 	@echo "Building service images..."
-	@docker compose build $(SERVICES)
+	@docker compose -f infra/docker-compose.yml build $(SERVICES)
 
 compose-clean: compose-stop ## [Compose] Stop services and remove volumes
 	@echo "Cleaning up..."
-	@docker compose down -v
+	@docker compose -f infra/docker-compose.yml down -v
 	@docker system prune -f
 
 compose-status: ## [Compose] Show status of all services
-	@docker compose ps
+	@docker compose -f infra/docker-compose.yml ps
 
 compose-test: ## [Compose] Generate test traffic
 	@bash scripts/generate-traffic.sh
 
 compose-infra: ## [Compose] Start only infrastructure services
-	@docker compose up -d otel-collector jaeger prometheus loki grafana
+	@docker compose -f infra/docker-compose.yml up -d otel-collector jaeger prometheus loki grafana
 
 # Kubernetes Targets
 
