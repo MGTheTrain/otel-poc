@@ -1,85 +1,78 @@
 #!/bin/bash
+#
+# port-forward-in-kind.sh — port-forward observability + service endpoints.
+#
+set -euo pipefail
 
-set -e
+NAMESPACE="${NAMESPACE:-default}"
 
-# Parse arguments
+# Parse flags
 FORWARD_OBS=false
 FORWARD_SVC=false
-
 while [[ $# -gt 0 ]]; do
-    case $1 in
-        --obs|--observability)
-            FORWARD_OBS=true
-            shift
-            ;;
-        --svc|--services)
-            FORWARD_SVC=true
-            shift
-            ;;
-        --all)
-            FORWARD_OBS=true
-            FORWARD_SVC=true
-            shift
-            ;;
-        *)
-            echo "Unknown option: $1"
-            echo "Usage: $0 [--obs|--observability] [--svc|--services] [--all]"
-            exit 1
-            ;;
+    case "$1" in
+        --obs|--observability) FORWARD_OBS=true; shift ;;
+        --svc|--services)      FORWARD_SVC=true; shift ;;
+        --all)                 FORWARD_OBS=true; FORWARD_SVC=true; shift ;;
+        *) echo "Usage: $0 [--obs|--observability] [--svc|--services] [--all]" >&2; exit 1 ;;
     esac
 done
-
-# Default to all if nothing specified
-if [ "$FORWARD_OBS" = false ] && [ "$FORWARD_SVC" = false ]; then
+if ! ${FORWARD_OBS} && ! ${FORWARD_SVC}; then
     FORWARD_OBS=true
     FORWARD_SVC=true
 fi
 
-# Trap to cleanup all background jobs on exit
 cleanup() {
     echo ""
-    echo "Stopping all port-forwards..."
+    echo "Stopping port-forwards..."
     jobs -p | xargs -r kill 2>/dev/null || true
     exit 0
 }
-
 trap cleanup SIGINT SIGTERM EXIT
 
-echo "Starting port-forwards for Kind cluster..."
+# Forward a Service by name.
+forward() {
+    local svc="$1" local_port="$2" remote_port="$3"
+    if kubectl get svc "${svc}" -n "${NAMESPACE}" >/dev/null 2>&1; then
+        kubectl port-forward -n "${NAMESPACE}" "svc/${svc}" "${local_port}:${remote_port}" &
+        echo "  ${svc} → http://localhost:${local_port}"
+    else
+        echo "  ${svc} (skip — not deployed)"
+    fi
+}
+
+# Forward a Deployment by name (used for headless services where the
+# service-port resolution path doesn't work cleanly).
+forward_deploy() {
+    local deploy="$1" local_port="$2" container_port="$3"
+    if kubectl get deploy "${deploy}" -n "${NAMESPACE}" >/dev/null 2>&1; then
+        kubectl port-forward -n "${NAMESPACE}" "deploy/${deploy}" "${local_port}:${container_port}" &
+        echo "  ${deploy} (deploy) → http://localhost:${local_port}"
+    else
+        echo "  ${deploy} (skip — not deployed)"
+    fi
+}
+
+echo "Starting port-forwards for kind..."
 echo ""
 
-# Display and forward observability stack
-if [ "$FORWARD_OBS" = true ]; then
-    echo "Observability Stack:"
-    echo "  Grafana:    http://localhost:3000"
-    echo "  Jaeger:     http://localhost:16686"
-    echo "  Prometheus: http://localhost:9090"
+if ${FORWARD_OBS}; then
+    echo "Observability:"
+    forward         grafana            3000  80
+    forward_deploy  jaeger             16686 16686
+    forward         prometheus-server  9090  80
     echo ""
-    
-    kubectl port-forward -n default svc/grafana 3000:80 &
-    kubectl port-forward -n default svc/jaeger-query 16686:16686 &
-    kubectl port-forward -n default svc/prometheus-server 9090:80 &
 fi
 
-# Display and forward OpenTelemetry services
-if [ "$FORWARD_SVC" = true ]; then
-    echo "OpenTelemetry Services:"
-    echo "  C#:     http://localhost:5001"
-    echo "  Go:     http://localhost:5002"
-    echo "  Python: http://localhost:5003"
-    echo "  Rust:   http://localhost:5004"
-    echo "  C++:    http://localhost:5005"
+if ${FORWARD_SVC}; then
+    echo "Services:"
+    forward csharp-otel-service 5001 8080
+    forward go-otel-service     5002 8080
+    forward python-otel-service 5003 8080
+    forward rust-otel-service   5004 8080
+    forward cpp-otel-service    5005 8080
     echo ""
-    
-    kubectl port-forward -n default svc/csharp-otel-service 5001:8080 &
-    kubectl port-forward -n default svc/go-otel-service 5002:8080 &
-    kubectl port-forward -n default svc/python-otel-service 5003:8080 &
-    kubectl port-forward -n default svc/rust-otel-service 5004:8080 &
-    kubectl port-forward -n default svc/cpp-otel-service 5005:8080 &
 fi
 
-echo "Press Ctrl+C to stop all port-forwards"
-echo ""
-
-# Wait for all background jobs
+echo "Press Ctrl+C to stop."
 wait

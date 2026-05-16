@@ -1,0 +1,32 @@
+apiVersion: v2
+name: otel-poc
+description: OpenTelemetry PoC umbrella — observability stack plus 5 demo services.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+  - name: otel-platform
+    version: "0.1.0"
+    repository: "file://../otel-platform"
+
+  - name: cpp-otel-service
+    version: "0.1.0"
+    repository: "file://../services/cpp-otel-service"
+    condition: cpp-otel-service.enabled
+  - name: csharp-otel-service
+    version: "0.1.0"
+    repository: "file://../services/csharp-otel-service"
+    condition: csharp-otel-service.enabled
+  - name: go-otel-service
+    version: "0.1.0"
+    repository: "file://../services/go-otel-service"
+    condition: go-otel-service.enabled
+  - name: python-otel-service
+    version: "0.1.0"
+    repository: "file://../services/python-otel-service"
+    condition: python-otel-service.enabled
+  - name: rust-otel-service
+    version: "0.1.0"
+    repository: "file://../services/rust-otel-service"
+    condition: rust-otel-service.enabled

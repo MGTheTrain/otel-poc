@@ -16,6 +16,7 @@
   "postCreateCommand": "cd services/python-otel-service && pip install -r requirements.txt",
   "remoteUser": "vscode",
   "remoteEnv": {
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317"
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "localhost:4317",
+    "PROJECT_ROOT": "${localWorkspaceFolder}"
   }
 }

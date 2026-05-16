@@ -1,10 +1,11 @@
 services:
   # OpenTelemetry Collector - central hub for telemetry data
   otel-collector:
-    build:
-      context: ./otel-collector
+    image: otel/opentelemetry-collector-contrib:0.140.1
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ${PROJECT_ROOT}/configs/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml:ro
     ports:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP HTTP receiver
@@ -27,11 +28,12 @@ services:
 
   # Prometheus - metrics storage
   prometheus:
-    build:
-      context: ./prometheus
+    image: prom/prometheus:v3.8.0
     container_name: prometheus
     ports:
       - "9090:9090"
+    volumes:
+      - ${PROJECT_ROOT}/configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - otel-network
 
@@ -47,14 +49,15 @@ services:
 
   # Grafana - visualization
   grafana:
-    build:
-      context: ./grafana
+    image: grafana/grafana:12.3.0
     container_name: grafana
     ports:
       - "3000:3000"
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ${PROJECT_ROOT}/configs/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
       - loki
@@ -66,7 +69,7 @@ services:
   csharp-otel-service:
     container_name: csharp-otel-service
     build:
-      context: ../services/csharp-otel-service
+      context: ${PROJECT_ROOT}/services/csharp-otel-service
       dockerfile: Dockerfile
     ports:
       - "5001:8080"
@@ -81,7 +84,7 @@ services:
   go-otel-service:
     container_name: go-otel-service
     build:
-      context: ../services/go-otel-service
+      context: ${PROJECT_ROOT}/services/go-otel-service
       dockerfile: Dockerfile
     ports:
       - "5002:8080"
@@ -96,7 +99,7 @@ services:
   python-otel-service:
     container_name: python-otel-service
     build:
-      context: ../services/python-otel-service
+      context: ${PROJECT_ROOT}/services/python-otel-service
       dockerfile: Dockerfile
     ports:
       - "5003:8080"
@@ -111,7 +114,7 @@ services:
   rust-otel-service:
     container_name: rust-otel-service
     build:
-      context: ../services/rust-otel-service
+      context: ${PROJECT_ROOT}/services/rust-otel-service
       dockerfile: Dockerfile
     ports:
       - "5004:8080"
@@ -126,7 +129,7 @@ services:
   cpp-otel-service:
     container_name: cpp-otel-service
     build:
-      context: ../services/cpp-otel-service
+      context: ${PROJECT_ROOT}/services/cpp-otel-service
       dockerfile: Dockerfile
     ports:
       - "5005:8080"

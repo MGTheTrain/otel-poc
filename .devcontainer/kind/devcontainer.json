@@ -23,5 +23,8 @@
         "5003": {"label": "Python OpenTelemetry Service"},
         "5004": {"label": "Rust OpenTelemetry Service"},
         "5005": {"label": "C++ OpenTelemetry Service"}
+    },
+    "remoteEnv": {
+        "PROJECT_ROOT": "${localWorkspaceFolder}"
     }
 }

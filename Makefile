@@ -1,7 +1,15 @@
-.PHONY: help compose-start compose-stop compose-restart compose-logs compose-clean compose-build compose-status compose-test compose-infra open-grafana open-jaeger open-prometheus k8s-deploy k8s-clean k8s-fwd-obs k8s-fwd-svc k8s-forward k8s-traffic
+SHELL       := /usr/bin/env bash
+.SHELLFLAGS := -eu -o pipefail -c
+
+export PROJECT_ROOT   ?= $(CURDIR)
+
+COMPOSE_FILE := infra/compose/docker-compose.yml
+COMPOSE      := docker compose -f $(COMPOSE_FILE)
 
 help: ## Show this help message
-	@echo 'Usage: make [target] [SERVICES="service1 service2"]'
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo "  PROJECT_ROOT   = $(PROJECT_ROOT)"
 	@echo ''
 	@echo 'Common targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## \[Common\]/ {printf "  \033[35m%-18s\033[0m %s\n", $$1, substr($$2, 10)}' $(MAKEFILE_LIST)
@@ -29,34 +37,31 @@ open-prometheus: ## [Common] Open Prometheus in browser
 # Docker Compose Targets
 
 compose-start: ## [Compose] Start services (use SERVICES="svc1 svc2" for specific)
-	@docker compose -f infra/docker-compose.yml up -d $(SERVICES)
+	@$(COMPOSE) up -d $(SERVICES)
 
 compose-stop: ## [Compose] Stop services
-	@echo "Stopping services..."
-	$(if $(SERVICES),@docker compose -f infra/docker-compose.yml stop $(SERVICES),@docker compose -f infra/docker-compose.yml down)
+	@$(COMPOSE) down
 
 compose-restart: compose-stop compose-start ## [Compose] Restart services
 
 compose-logs: ## [Compose] Show logs
-	@docker compose -f infra/docker-compose.yml logs -f $(SERVICES)
+	@$(COMPOSE) logs -f $(SERVICES)
 
 compose-build: ## [Compose] Build service images
-	@echo "Building service images..."
-	@docker compose -f infra/docker-compose.yml build $(SERVICES)
+	@$(COMPOSE) build $(SERVICES)
 
 compose-clean: compose-stop ## [Compose] Stop services and remove volumes
-	@echo "Cleaning up..."
-	@docker compose -f infra/docker-compose.yml down -v
+	@$(COMPOSE) down -v
 	@docker system prune -f
 
 compose-status: ## [Compose] Show status of all services
-	@docker compose -f infra/docker-compose.yml ps
+	@$(COMPOSE) ps
 
-compose-test: ## [Compose] Generate test traffic
+compose-traffic: ## [Compose] Generate test traffic
 	@bash scripts/generate-traffic.sh
 
 compose-infra: ## [Compose] Start only infrastructure services
-	@docker compose -f infra/docker-compose.yml up -d otel-collector jaeger prometheus loki grafana
+	@$(COMPOSE) up -d otel-collector jaeger prometheus loki grafana
 
 # Kubernetes Targets
 
@@ -65,6 +70,10 @@ k8s-deploy: ## [K8s] Deploy all services to Kind cluster
 
 k8s-clean: ## [K8s] Remove all deployments from Kind cluster
 	@bash scripts/cleanup-kind.sh
+
+k8s-redeploy: ## [K8s] Uninstall + install (full reset)
+	@bash scripts/cleanup-kind.sh
+	@bash scripts/deploy-to-kind.sh
 
 k8s-fwd-obs: ## [K8s] Port-forward observability stack only
 	@bash scripts/port-forward-in-kind.sh --obs

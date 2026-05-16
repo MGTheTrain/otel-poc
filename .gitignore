@@ -53,3 +53,5 @@ project.lock.json
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
+
+*.tgz

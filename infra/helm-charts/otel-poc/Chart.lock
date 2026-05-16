@@ -1,0 +1,15 @@
+dependencies:
+- name: otel-platform
+  repository: file://../otel-platform
+  version: 0.1.0
+- name: csharp-otel-service
+  repository: file://../services/csharp-otel-service
+  version: 0.1.0
+- name: go-otel-service
+  repository: file://../services/go-otel-service
+  version: 0.1.0
+- name: python-otel-service
+  repository: file://../services/python-otel-service
+  version: 0.1.0
+digest: sha256:73c8950ed9cfab67e3671bf355b98d4406638bbf44d7d99115ea0634efee4a36
+generated: "2026-05-16T16:30:07.984060471Z"

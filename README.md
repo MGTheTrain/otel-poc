@@ -1,7 +1,5 @@
 # OpenTelemetry Observability Stack PoC
 
-![Completed](https://img.shields.io/badge/status-completed-006400)
-
 Complete observability platform demonstrating traces, metrics and logs across C#, Go, Python, Rust and C++ using OpenTelemetry.
 
 ## Quick Start
@@ -18,7 +16,7 @@ make compose-start SERVICES="python-otel-service go-otel-service csharp-otel-ser
 make compose-start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
 
 # Generate test traffic and view results
-make compose-test
+make compose-traffic
 make open-grafana  # Open http://localhost:3000 (admin/admin)
 
 # Clean up docker resources
@@ -129,7 +127,9 @@ Each service has a pre-configured [dev container](https://containers.dev/) with 
 
 **Available Commands:**
 ```bash
-Usage: make [target] [SERVICES="service1 service2"]
+Usage: make [target]
+
+  PROJECT_ROOT   = /Users/marvingajek/Documents/poc-repos/otel-poc
 
 Common targets:
   open-grafana       Open Grafana in browser
@@ -144,32 +144,17 @@ Docker Compose targets:
   compose-build      Build service images
   compose-clean      Stop services and remove volumes
   compose-status     Show status of all services
-  compose-test       Generate test traffic
+  compose-traffic    Generate test traffic
   compose-infra      Start only infrastructure services
 
 Kubernetes targets:
   k8s-deploy         Deploy all services to Kind cluster
   k8s-clean          Remove all deployments from Kind cluster
+  k8s-redeploy       Uninstall + install (full reset)
   k8s-fwd-obs        Port-forward observability stack only
   k8s-fwd-svc        Port-forward OpenTelemetry services only
   k8s-forward        Port-forward everything (observability + services)
   k8s-traffic        Generate test traffic to all services
-```
-
-## Troubleshooting
-
-**No telemetry data?**
-1. Check collector: `docker ps | grep otel-collector`
-2. Generate traffic: `make test`
-3. View logs: `docker logs otel-collector`
-
-**Port conflicts?**
-Edit left side of port mappings in `docker-compose.yml`
-
-**Service issues?**
-```bash
-make logs SERVICES="service-name"
-make compose-restart
 ```
 
 ## Resources
@@ -195,7 +180,7 @@ make compose-restart
 ## Common Use Cases
 
 ### Debugging a Slow Request
-1. Find Jaeger traces by trace ID or time in Grafana or Jaeger
+1. Find Jaeger traces by trace ID or time in Grafana or Jaeger Web UI
 2. Identify slow span/operation
 3. Check metrics for that service in Grafana
 4. View logs from that timeframe in Grafana

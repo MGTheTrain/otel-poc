@@ -1,0 +1,72 @@
+# Observability stack — defaults from otel-platform/values.yaml apply.
+# Override here only if you need different topology.
+otel-platform: {}
+
+# One block per service. Keys match the subchart names from Chart.yaml.
+# Image policy is `Never` because images are kind-loaded, not pulled.
+_serviceDefaults: &serviceDefaults
+  image:
+    pullPolicy: Never
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  livenessProbe:
+    httpGet:
+      port: 8080
+  readinessProbe:
+    httpGet:
+      port: 8080
+
+# Rust uses an http:// prefix; everything else uses bare host:port. Matches
+# what the bash script set per-service.
+cpp-otel-service:
+  fullnameOverride: cpp-otel-service
+  <<: *serviceDefaults
+  image: { repository: otel-poc-cpp-otel-service, pullPolicy: Never, tag: latest }
+  env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: otel-collector:4317
+    - name: OTEL_SERVICE_NAME
+      value: cpp-otel-service
+
+csharp-otel-service:
+  fullnameOverride: csharp-otel-service
+  <<: *serviceDefaults
+  image: { repository: otel-poc-csharp-otel-service, pullPolicy: Never, tag: latest }
+  env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: otel-collector:4317
+    - name: OTEL_SERVICE_NAME
+      value: csharp-otel-service
+
+go-otel-service:
+  fullnameOverride: go-otel-service
+  <<: *serviceDefaults
+  image: { repository: otel-poc-go-otel-service, pullPolicy: Never, tag: latest }
+  env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: otel-collector:4317
+    - name: OTEL_SERVICE_NAME
+      value: go-otel-service
+
+python-otel-service:
+  fullnameOverride: python-otel-service
+  <<: *serviceDefaults
+  image: { repository: otel-poc-python-otel-service, pullPolicy: Never, tag: latest }
+  env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: otel-collector:4317
+    - name: OTEL_SERVICE_NAME
+      value: python-otel-service
+
+rust-otel-service:
+  fullnameOverride: rust-otel-service
+  <<: *serviceDefaults
+  image: { repository: otel-poc-rust-otel-service, pullPolicy: Never, tag: latest }
+  env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://otel-collector:4317   # rust SDK wants the scheme
+    - name: OTEL_SERVICE_NAME
+      value: rust-otel-service
