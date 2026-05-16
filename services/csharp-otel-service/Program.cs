@@ -14,7 +14,7 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddOtlpExporter(options => 
+        .AddOtlpExporter(options =>
         {
             options.Endpoint = new Uri($"http://{otlpEndpoint}");
             options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
@@ -22,7 +22,7 @@ builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddOtlpExporter(options => 
+        .AddOtlpExporter(options =>
         {
             options.Endpoint = new Uri($"http://{otlpEndpoint}");
             options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
@@ -33,7 +33,7 @@ builder.Logging.AddOpenTelemetry(logging =>
 {
     logging.IncludeFormattedMessage = true;
     logging.IncludeScopes = true;
-    logging.AddOtlpExporter(options => 
+    logging.AddOtlpExporter(options =>
     {
         options.Endpoint = new Uri($"http://{otlpEndpoint}");
         options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;

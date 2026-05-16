@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get update 
+sudo apt-get update
 sudo apt-get install -y \
     cmake build-essential libcurl4-openssl-dev libgrpc++-dev \
     libprotobuf-dev protobuf-compiler-grpc nlohmann-json3-dev
@@ -8,7 +8,7 @@ sudo apt-get install -y \
 cd /tmp
 git clone --depth 1 --branch v1.24.0 https://github.com/open-telemetry/opentelemetry-cpp.git
 cd opentelemetry-cpp
-mkdir build 
+mkdir build
 cd build
 cmake .. \
     -DCMAKE_BUILD_TYPE=Release \

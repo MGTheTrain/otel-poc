@@ -53,18 +53,22 @@ FastAPIInstrumentor().instrument_app(app)
 
 logger = logging.getLogger(__name__)
 
+
 @app.get("/")
 def root():
     return {"message": "Python OpenTelemetry Service"}
+
 
 @app.get("/api/hello")
 def hello():
     logger.info("Hello endpoint called from Python service")
     return {
         "message": "Hello from Python with OpenTelemetry!",
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8080)

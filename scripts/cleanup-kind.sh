@@ -4,7 +4,10 @@
 #
 set -euo pipefail
 
-BLUE='\033[0;34m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║              Kind Cluster Cleanup                            ║${NC}"
@@ -26,7 +29,7 @@ echo ""
 # 3. Stray completed/failed pods.
 echo -e "${YELLOW}🧹 Sweeping completed and failed pods...${NC}"
 kubectl delete pod --field-selector=status.phase==Succeeded --ignore-not-found=true 2>/dev/null || true
-kubectl delete pod --field-selector=status.phase==Failed    --ignore-not-found=true 2>/dev/null || true
+kubectl delete pod --field-selector=status.phase==Failed --ignore-not-found=true 2>/dev/null || true
 echo -e "${GREEN}✓ Swept${NC}"
 echo ""
 

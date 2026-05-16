@@ -11,10 +11,23 @@ FORWARD_OBS=false
 FORWARD_SVC=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --obs|--observability) FORWARD_OBS=true; shift ;;
-        --svc|--services)      FORWARD_SVC=true; shift ;;
-        --all)                 FORWARD_OBS=true; FORWARD_SVC=true; shift ;;
-        *) echo "Usage: $0 [--obs|--observability] [--svc|--services] [--all]" >&2; exit 1 ;;
+    --obs | --observability)
+        FORWARD_OBS=true
+        shift
+        ;;
+    --svc | --services)
+        FORWARD_SVC=true
+        shift
+        ;;
+    --all)
+        FORWARD_OBS=true
+        FORWARD_SVC=true
+        shift
+        ;;
+    *)
+        echo "Usage: $0 [--obs|--observability] [--svc|--services] [--all]" >&2
+        exit 1
+        ;;
     esac
 done
 if ! ${FORWARD_OBS} && ! ${FORWARD_SVC}; then
@@ -58,19 +71,19 @@ echo ""
 
 if ${FORWARD_OBS}; then
     echo "Observability:"
-    forward         grafana            3000  80
-    forward_deploy  jaeger             16686 16686
-    forward         prometheus-server  9090  80
+    forward grafana 3000 80
+    forward_deploy jaeger 16686 16686
+    forward prometheus-server 9090 80
     echo ""
 fi
 
 if ${FORWARD_SVC}; then
     echo "Services:"
     forward csharp-otel-service 5001 8080
-    forward go-otel-service     5002 8080
+    forward go-otel-service 5002 8080
     forward python-otel-service 5003 8080
-    forward rust-otel-service   5004 8080
-    forward cpp-otel-service    5005 8080
+    forward rust-otel-service 5004 8080
+    forward cpp-otel-service 5005 8080
     echo ""
 fi
 

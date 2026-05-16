@@ -30,7 +30,7 @@ async fn root() -> impl Responder {
 async fn hello() -> impl Responder {
     let _span = info_span!("hello_endpoint").entered();
     info!("Hello endpoint called from Rust service");
-    
+
     web::Json(Message {
         message: "Hello from Rust with OpenTelemetry!".to_string(),
         timestamp: chrono::Utc::now().to_rfc3339(),
@@ -92,7 +92,7 @@ fn init_telemetry() -> Result<(), Box<dyn std::error::Error>> {
     let telemetry_layer = tracing_opentelemetry::layer()
         .with_tracer(tracer_provider.tracer("rust-service"));
     let otel_log_layer = OpenTelemetryTracingBridge::new(&logger_provider);
-    
+
     let subscriber = Registry::default()
         .with(tracing_subscriber::fmt::layer())
         .with(telemetry_layer)

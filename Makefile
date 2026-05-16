@@ -19,6 +19,9 @@ help: ## Show this help message
 	@echo ''
 	@echo 'Kubernetes targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^k8s-[a-zA-Z_-]+:.*?## \[K8s\]/ {printf "  \033[33m%-18s\033[0m %s\n", $$1, substr($$2, 7)}' $(MAKEFILE_LIST)
+	@echo ''
+	@echo 'Development:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## \[Development\]/ {printf "  \033[32m%-18s\033[0m %s\n", $$1, substr($$2, 15)}' $(MAKEFILE_LIST)
 
 # Common Targets
 
@@ -86,3 +89,9 @@ k8s-forward: ## [K8s] Port-forward everything (observability + services)
 
 k8s-traffic: ## [K8s] Generate test traffic to all services
 	@bash scripts/generate-kind-traffic.sh
+
+# Development
+
+.PHONY: lint
+lint: ## [Development] Run pre-commit hooks on specific files
+	pre-commit run --all-files

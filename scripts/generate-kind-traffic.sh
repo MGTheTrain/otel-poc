@@ -19,8 +19,7 @@ for candidate in \
     go-otel-service \
     csharp-otel-service \
     rust-otel-service \
-    cpp-otel-service
-do
+    cpp-otel-service; do
     if kubectl get svc "${candidate}" -n "${NAMESPACE}" >/dev/null 2>&1; then
         SERVICES+=("${candidate}")
     fi

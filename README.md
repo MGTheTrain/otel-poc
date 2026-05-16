@@ -104,7 +104,7 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 # - Python: Different metric names (use response_size instead of duration)
 # - Rust: ❌ No HTTP metrics (Actix has no auto-instrumentation)
 # - C++: Manual counter only
-# 
+#
 # TODO: Add manual HTTP metric instrumentation for Rust/C++ services.
 # Refer to OpenTelemetry examples for your language:
 # - Rust: https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples
@@ -155,6 +155,9 @@ Kubernetes targets:
   k8s-fwd-svc        Port-forward OpenTelemetry services only
   k8s-forward        Port-forward everything (observability + services)
   k8s-traffic        Generate test traffic to all services
+
+Development:
+  lint               Run pre-commit hooks on specific files
 ```
 
 ## Resources

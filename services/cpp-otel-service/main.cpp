@@ -74,11 +74,11 @@ void init_telemetry() {
     reader_options.export_interval_millis = std::chrono::milliseconds(1000);
     auto reader = std::make_unique<metrics_sdk::PeriodicExportingMetricReader>(
         std::move(metric_exporter), reader_options);
-    
+
     auto meter_provider_unique = metrics_sdk::MeterProviderFactory::Create();
     auto meter_provider_raw = meter_provider_unique.release(); // Release from unique_ptr
     std::shared_ptr<metrics_api::MeterProvider> meter_provider(meter_provider_raw); // Wrap in shared_ptr
-    
+
     std::static_pointer_cast<metrics_sdk::MeterProvider>(meter_provider)->AddMetricReader(std::move(reader));
     metrics_api::Provider::SetMeterProvider(meter_provider);
 
@@ -113,26 +113,26 @@ int main() {
         auto tracer = trace_api::Provider::GetTracerProvider()->GetTracer("cpp-service");
         auto span = tracer->StartSpan("handle_hello");
         auto scope = tracer->WithActiveSpan(span);
-        
+
         // Add span attributes
         span->SetAttribute("http.method", "GET");
         span->SetAttribute("http.route", "/api/hello");
-        
+
         // Emit log
         auto logger = logs_api::Provider::GetLoggerProvider()->GetLogger("cpp-service");
         logger->EmitLogRecord(logs_api::Severity::kInfo, "Hello endpoint called from C++ service");
-        
+
         // Record metric
         auto meter = metrics_api::Provider::GetMeterProvider()->GetMeter("cpp-service");
         auto counter = meter->CreateUInt64Counter("http.server.requests");
         counter->Add(1, {{"http.route", "/api/hello"}, {"http.method", "GET"}});
-        
+
         json response = {
             {"message", "Hello from C++ with OpenTelemetry!"},
             {"timestamp", get_current_timestamp()}
         };
         res.set_content(response.dump(), "application/json");
-        
+
         span->End();
     });
 

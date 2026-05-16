@@ -24,9 +24,9 @@ target_link_libraries(cpp-otel-service
     opentelemetry-cpp::api
     opentelemetry-cpp::sdk
     opentelemetry-cpp::ext
-    opentelemetry-cpp::otlp_grpc_exporter          
-    opentelemetry-cpp::otlp_grpc_metrics_exporter   
-    opentelemetry-cpp::otlp_grpc_log_record_exporter 
+    opentelemetry-cpp::otlp_grpc_exporter
+    opentelemetry-cpp::otlp_grpc_metrics_exporter
+    opentelemetry-cpp::otlp_grpc_log_record_exporter
     opentelemetry-cpp::logs
     opentelemetry-cpp::metrics
     opentelemetry-cpp::trace
