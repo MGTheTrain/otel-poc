@@ -1,52 +1,85 @@
 name: Build multi-arch images
+
 on:
   workflow_dispatch:
 
+env:
+  REGISTRY: docker.io
+
 jobs:
-  build-local:
-    runs-on: ubuntu-latest
+  # ─── Phase 1: build native per-arch images ─────────────────────────────
+  build:
+    name: Build ${{ matrix.image.name }} (${{ matrix.arch }})
     strategy:
+      fail-fast: false
       matrix:
+        arch: [amd64, arm64]
         include:
-          - name: otel-poc-csharp-service
-            context: ./services/csharp-service
-            file: ./services/csharp-service/Dockerfile
-            image: otel-poc-csharp-service
-          - name: otel-poc-go-service
-            context: ./services/go-service
-            file: ./services/go-service/Dockerfile
-            image: otel-poc-go-service
-          - name: otel-poc-python-service
-            context: ./services/python-service
-            file: ./services/python-service/Dockerfile
-            image: otel-poc-python-service
-          - name: otel-poc-cpp-service
-            context: ./services/cpp-service
-            file: ./services/cpp-service/Dockerfile
-            image: otel-poc-cpp-service
-          - name: otel-poc-rust-service
-            context: ./services/rust-service
-            file: ./services/rust-service/Dockerfile
-            image: otel-poc-rust-service
-    env:
-      PROJECT_ROOT: ${{ github.workspace }}
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+        image:
+          - { name: csharp-service, context: ./services/csharp-service }
+          - { name: go-service,     context: ./services/go-service }
+          - { name: python-service, context: ./services/python-service }
+          - { name: cpp-service,    context: ./services/cpp-service }
+          - { name: rust-service,   context: ./services/rust-service }
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
-      - uses: docker/setup-qemu-action@v3
-        with: { platforms: amd64,arm64 }
+
       - uses: docker/setup-buildx-action@v3
+
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/build-push-action@v5
+
+      - name: Build and push (${{ matrix.arch }})
+        uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
-          platforms: linux/amd64,linux/arm64
+          context: ${{ matrix.image.context }}
+          file: ${{ matrix.image.context }}/Dockerfile
+          platforms: linux/${{ matrix.arch }}
           push: true
+          # Per-arch tags. The manifest stitcher in the next job
+          # combines these into the user-facing :latest and :sha tags.
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image }}:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ secrets.DOCKERHUB_USERNAME }}/otel-poc-${{ matrix.image.name }}:${{ github.sha }}-${{ matrix.arch }}
+          cache-from: type=gha,scope=${{ matrix.image.name }}-${{ matrix.arch }}
+          cache-to:   type=gha,scope=${{ matrix.image.name }}-${{ matrix.arch }},mode=max
+
+  # ─── Phase 2: combine per-arch images into multi-arch manifests ───────
+  manifest:
+    name: Multi-arch manifest for ${{ matrix.image }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [csharp-service, go-service, python-service, cpp-service, rust-service]
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create + push manifest
+        env:
+          REPO: ${{ secrets.DOCKERHUB_USERNAME }}/otel-poc-${{ matrix.image }}
+          SHA: ${{ github.sha }}
+        run: |
+          # Combine the two per-arch images into one multi-arch manifest
+          # under both :sha and :latest tags.
+          docker buildx imagetools create \
+            --tag "${REPO}:${SHA}" \
+            --tag "${REPO}:latest" \
+            "${REPO}:${SHA}-amd64" \
+            "${REPO}:${SHA}-arm64"
+
+      - name: Verify
+        env:
+          REPO: ${{ secrets.DOCKERHUB_USERNAME }}/otel-poc-${{ matrix.image }}
+        run: |
+          docker buildx imagetools inspect "${REPO}:latest"
