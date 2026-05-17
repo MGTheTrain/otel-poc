@@ -61,6 +61,7 @@ helm list -n default || true
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"
 echo "  1. Port-forward:   make k8s-forward"
-echo "  2. Generate load:  make k8s-traffic"
+echo "  2.1. Generate load:  make k8s-traffic"
+echo "  2.2. Generate load and assert telemetry lands: make k8s-test"
 echo "  3. Open Grafana:   http://localhost:3000"
 echo ""

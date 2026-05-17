@@ -68,9 +68,6 @@ compose-status: ## [Compose] Show status of all services
 compose-traffic: ## [Compose] Generate test traffic
 	@scripts/generate-traffic.sh compose
 
-compose-traffic-assert: ## [Compose] Generate traffic  assert telemetry landed
-	@bash scripts/generate-traffic.sh compose --assert
-
 compose-test: ## [Compose] Run service + telemetry tests against the compose stack
 	$(PYTEST) tests/ --env=compose
 
@@ -102,16 +99,12 @@ k8s-forward-bg: ## [K8s] Same, but background — writes PID to /tmp/otel-pf.pid
 k8s-forward-stop: ## [K8s] Kill the background port-forwards
 	@if [ -f /tmp/otel-pf.pid ]; then kill $$(cat /tmp/otel-pf.pid) 2>/dev/null || true; rm -f /tmp/otel-pf.pid; fi
 
-k8s-traffic: ## [K8s] Generate test traffic to all services
-	@echo "Note: assumes 'make k8s-forward' is running in another terminal"
+k8s-traffic: ## [K8s] Generate test traffic to available internal services
+	@echo "NOTE: assumes 'make k8s-forward' is running in another terminal"
 	@scripts/generate-traffic.sh k8s
 
-k8s-traffic-assert: ## [K8s] Generate traffic + assert telemetry landed
-	@echo "Note: assumes 'make k8s-forward' is running in another terminal"
-	@bash scripts/generate-traffic.sh k8s --assert
-
 k8s-test: ## [K8s] Run service + telemetry tests against the k8s deployment
-	@echo "Note: assumes 'make k8s-forward' is running in another terminal"
+	@echo "NOTE: assumes 'make k8s-forward' is running in another terminal"
 	$(PYTEST) tests/ --env=k8s
 
 # Development

@@ -32,3 +32,20 @@ def test_each_service_has_traces_in_jaeger(
         if n == 0:
             missing.append(name)
     assert not missing, f"no traces in Jaeger for: {missing}"
+
+@pytest.mark.skip(
+    reason="TODO"
+)
+def test_each_service_has_metrics_in_prometheus(
+    endpoints, deployed_services, traffic_generated
+):
+    ...
+
+
+@pytest.mark.skip(
+    reason="TODO"
+)
+def test_each_service_has_logs_in_loki(
+    endpoints, deployed_services, traffic_generated
+):
+    ...

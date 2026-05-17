@@ -18,8 +18,8 @@ make compose-start-infra
 make compose-start SERVICES="python-service go-service csharp-service"
 make compose-start SERVICES="rust-service cpp-service" # Compile and start heavy services separately (slow on first run)
 
-# Terminal A - Generate traffic + assert telemetry landed
-make compose-traffic-assert
+# Terminal A - Generate traffic
+make compose-traffic
 # Open Grafana in browser
 make open-grafana # http://localhost:3000 (admin/admin)
 
@@ -38,8 +38,8 @@ make k8s-deploy
 # Terminal B - Port-forward everything (observability + services)
 make k8s-fwd
 
-# Terminal A - Generate traffic + assert telemetry landed
-make k8s-traffic-assert
+# Terminal A - Generate traffic
+make k8s-traffic
 # Open Grafana in browser
 make open-grafana  # http://localhost:3000 (admin/admin)
 
@@ -143,6 +143,7 @@ Common targets:
 
 Docker Compose targets:
   compose-start      Start services (use SERVICES="svc1 svc2" for specific)
+  compose-start-infra Start only infrastructure services
   compose-stop       Stop services
   compose-restart    Restart services
   compose-logs       Show logs
@@ -150,8 +151,7 @@ Docker Compose targets:
   compose-clean      Stop services and remove volumes
   compose-status     Show status of all services
   compose-traffic    Generate test traffic
-  compose-traffic-assert Generate traffic  assert telemetry landed
-  compose-start-infra      Start only infrastructure services
+  compose-test       Run service + telemetry tests against the compose stack
 
 Kubernetes targets:
   k8s-deploy         Deploy all services to Kind cluster
@@ -162,8 +162,8 @@ Kubernetes targets:
   k8s-forward        Port-forward everything (observability + services)
   k8s-forward-bg     Same, but background — writes PID to /tmp/otel-pf.pid
   k8s-forward-stop   Kill the background port-forwards
-  k8s-traffic        Generate test traffic to all services
-  k8s-traffic-assert Generate traffic + assert telemetry landed
+  k8s-traffic        Generate test traffic to available internal services
+  k8s-test           Run service + telemetry tests against the k8s deployment
 
 Development:
   lint               Run pre-commit hooks on specific files

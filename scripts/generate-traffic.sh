@@ -28,11 +28,6 @@ BATCHES="${BATCHES:-20}"
 SLEEP_BETWEEN="${SLEEP_BETWEEN:-1}"
 SETTLE_SECONDS="${SETTLE_SECONDS:-30}"
 
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
 # Service catalog. Bash 3-compatible (macOS ships 3.2).
 SERVICE_ORDER=(python-service go-service csharp-service rust-service cpp-service)
 
@@ -142,70 +137,3 @@ done
 
 echo ""
 echo "Traffic generation complete"
-
-# ─── Assert telemetry landed in backends ──────────────────────────
-if ${ASSERT}; then
-    echo ""
-    echo -e "${YELLOW}Waiting ${SETTLE_SECONDS}s for OTel batch flush + Prometheus scrape...${NC}"
-    sleep "${SETTLE_SECONDS}"
-    echo ""
-
-    PASSED=0
-    FAILED=0
-    pass() {
-        echo -e "  ${GREEN}✓${NC} $1"
-        PASSED=$((PASSED + 1))
-    }
-    fail() {
-        echo -e "  ${RED}✗${NC} $1"
-        FAILED=$((FAILED + 1))
-    }
-
-    jaeger_base=$(backend_url "http://jaeger-query:16686" "http://localhost:16686")
-    # prom_base=$(backend_url "http://prometheus-server:80" "http://localhost:9090")
-    # loki_base=$(backend_url "http://loki-gateway:80" "http://localhost:3100")
-
-    echo -e "${YELLOW}▶ Jaeger (traces)${NC}"
-    for svc in "${SERVICES[@]}"; do
-        n=$(backend_curl "${jaeger_base}/api/traces?service=${svc}&lookback=10m&limit=20" |
-            grep -oE '"traceID"' | wc -l | tr -d ' ')
-        if [ "${n}" -gt 0 ]; then pass "${svc}: ${n} traces"; else fail "${svc}: no traces"; fi
-    done
-    echo ""
-
-    # TODO:
-    # - Assert Prometheus metrics and Loki application logs
-    # - Migrate to pytest
-    # echo -e "${YELLOW}▶ Prometheus (metrics)${NC}"
-    # for svc in "${SERVICES[@]}"; do
-    #     q="otel_http_server_request_duration_seconds_count%7Bexported_job%3D%22${svc}%22%7D"
-    #     resp=$(backend_curl "${prom_base}/api/v1/query?query=${q}" || echo "")
-    #     if echo "${resp}" | grep -q '"status":"success"' && echo "${resp}" | grep -q '"value":\['; then
-    #         pass "${svc}: counter present"
-    #     else
-    #         fail "${svc}: no metrics"
-    #     fi
-    # done
-    # echo ""
-
-    # echo -e "${YELLOW}▶ Loki (logs)${NC}"
-    # now_ns=$(date +%s)000000000
-    # start_ns=$(( $(date +%s) - 600 ))000000000
-    # for svc in "${SERVICES[@]}"; do
-    #     q="%7Bpod%3D~%22${svc}.%2A%22%7D"
-    #     resp=$(backend_curl "${loki_base}/loki/api/v1/query_range?query=${q}&start=${start_ns}&end=${now_ns}&limit=10" || echo "")
-    #     if echo "${resp}" | grep -q '"status":"success"' && echo "${resp}" | grep -q '"values":\[\['; then
-    #         pass "${svc}: logs present"
-    #     else
-    #         fail "${svc}: no logs"
-    #     fi
-    # done
-    echo ""
-
-    echo "Assertions: ${PASSED} passed, ${FAILED} failed"
-    if [ "${FAILED}" -gt 0 ]; then
-        exit 1
-    else
-        exit 0
-    fi
-fi
