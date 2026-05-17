@@ -68,6 +68,8 @@ else
     exit 1
 fi
 
+pip install pytest requests
+
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║                    Sample Commands                           ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"

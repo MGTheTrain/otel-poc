@@ -14,7 +14,7 @@ COMPOSE_FILE="./infra/compose/docker-compose.ci.yml" make compose-start
 make compose-start
 
 # Option 3: Start infrastructure services, build and start specific internal services
-make compose-infra
+make compose-start-infra
 make compose-start SERVICES="python-service go-service csharp-service"
 make compose-start SERVICES="rust-service cpp-service" # Compile and start heavy services separately (slow on first run)
 
@@ -128,7 +128,7 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 ## Development
 
 **Dev Containers:**
-Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make compose-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
+Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make compose-start-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
 
 **Available Commands:**
 ```bash
@@ -151,7 +151,7 @@ Docker Compose targets:
   compose-status     Show status of all services
   compose-traffic    Generate test traffic
   compose-traffic-assert Generate traffic  assert telemetry landed
-  compose-infra      Start only infrastructure services
+  compose-start-infra      Start only infrastructure services
 
 Kubernetes targets:
   k8s-deploy         Deploy all services to Kind cluster

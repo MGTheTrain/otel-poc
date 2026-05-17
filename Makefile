@@ -6,6 +6,8 @@ export PROJECT_ROOT   ?= $(CURDIR)
 COMPOSE_FILE ?= infra/compose/docker-compose.yml
 COMPOSE      := docker compose -f $(COMPOSE_FILE)
 
+PYTEST ?= pytest
+
 help: ## Show this help message
 	@echo 'Usage: make [target]'
 	@echo ''
@@ -42,6 +44,9 @@ open-prometheus: ## [Common] Open Prometheus in browser
 compose-start: ## [Compose] Start services (use SERVICES="svc1 svc2" for specific)
 	@$(COMPOSE) up -d $(SERVICES)
 
+compose-start-infra: ## [Compose] Start only infrastructure services
+	@$(COMPOSE) up -d otel-collector jaeger prometheus loki grafana
+
 compose-stop: ## [Compose] Stop services
 	@$(COMPOSE) down
 
@@ -66,8 +71,8 @@ compose-traffic: ## [Compose] Generate test traffic
 compose-traffic-assert: ## [Compose] Generate traffic  assert telemetry landed
 	@bash scripts/generate-traffic.sh compose --assert
 
-compose-infra: ## [Compose] Start only infrastructure services
-	@$(COMPOSE) up -d otel-collector jaeger prometheus loki grafana
+compose-test: ## [Compose] Run service + telemetry tests against the compose stack
+	$(PYTEST) tests/ --env=compose
 
 # Kubernetes Targets
 
@@ -98,10 +103,16 @@ k8s-forward-stop: ## [K8s] Kill the background port-forwards
 	@if [ -f /tmp/otel-pf.pid ]; then kill $$(cat /tmp/otel-pf.pid) 2>/dev/null || true; rm -f /tmp/otel-pf.pid; fi
 
 k8s-traffic: ## [K8s] Generate test traffic to all services
+	@echo "Note: assumes 'make k8s-forward' is running in another terminal"
 	@scripts/generate-traffic.sh k8s
 
 k8s-traffic-assert: ## [K8s] Generate traffic + assert telemetry landed
+	@echo "Note: assumes 'make k8s-forward' is running in another terminal"
 	@bash scripts/generate-traffic.sh k8s --assert
+
+k8s-test: ## [K8s] Run service + telemetry tests against the k8s deployment
+	@echo "Note: assumes 'make k8s-forward' is running in another terminal"
+	$(PYTEST) tests/ --env=k8s
 
 # Development
 
