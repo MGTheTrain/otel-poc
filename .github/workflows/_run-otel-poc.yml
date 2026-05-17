@@ -37,9 +37,9 @@ jobs:
         if: inputs.runtime == 'compose'
         run: make compose-start
 
-      - name: Generate test traffic (compose)
+      - name: Generate test traffic + assert telemetry landed (compose)
         if: inputs.runtime == 'compose'
-        run: make compose-traffic
+        run: make compose-traffic-assert
 
       # ── k8s path ──────────────────────────────────────────────────
       - name: Set up kind cluster
@@ -60,9 +60,9 @@ jobs:
         if: inputs.runtime == 'k8s'
         run: make k8s-forward-bg
 
-      - name: Generate test traffic (k8s)
+      - name: Generate test traffic + assert telemetry landed (k8s)
         if: inputs.runtime == 'k8s'
-        run: make k8s-traffic
+        run: make k8s-traffic-assert
 
       # ── Diagnostics ───────────────────────────────────────────────
       - name: Dump logs on failure (compose)

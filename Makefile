@@ -63,6 +63,9 @@ compose-status: ## [Compose] Show status of all services
 compose-traffic: ## [Compose] Generate test traffic
 	@scripts/generate-traffic.sh compose
 
+compose-traffic-assert: ## [Compose] Generate traffic  assert telemetry landed
+	@bash scripts/generate-traffic.sh compose --assert
+
 compose-infra: ## [Compose] Start only infrastructure services
 	@$(COMPOSE) up -d otel-collector jaeger prometheus loki grafana
 
@@ -96,6 +99,9 @@ k8s-forward-stop: ## [K8s] Kill the background port-forwards
 
 k8s-traffic: ## [K8s] Generate test traffic to all services
 	@scripts/generate-traffic.sh k8s
+
+k8s-traffic-assert: ## [K8s] Generate traffic + assert telemetry landed
+	@bash scripts/generate-traffic.sh k8s --assert
 
 # Development
 

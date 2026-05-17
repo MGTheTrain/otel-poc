@@ -4,8 +4,8 @@
 #
 # Pipeline:
 #   1. Add Helm repos (idempotent)
-#   2. Build and kind-load service images
-#   3. helm dependency update; helm upgrade --install otel-poc
+#   2. Resolve chart dependencies (platform first, then umbrella)
+#   3. helm upgrade --install otel-poc
 #
 set -euo pipefail
 
@@ -31,14 +31,20 @@ helm repo update >/dev/null
 echo -e "${GREEN}✓ Repositories ready${NC}"
 echo ""
 
-# ─── 2. Helm install the umbrella ──────────────────────────────────────────
+# ─── 2. Resolve chart dependencies ──────────────────────────────────────────
+# Bottom-up: platform first (pulls upstream observability charts), then
+# umbrella (pulls the now-complete platform tgz + service charts). The
+# platform step is the one that breaks subtly if skipped — the umbrella
+# packages otel-platform without its own deps and silently installs
+# an empty subchart.
 echo -e "${YELLOW}⎈ Resolving chart dependencies...${NC}"
 helm dependency update ./infra/helm-charts/otel-platform >/dev/null
 helm dependency update "${UMBRELLA_CHART}" >/dev/null
 echo -e "${GREEN}✓ Dependencies resolved${NC}"
+echo ""
 
+# ─── 3. Helm install the umbrella ──────────────────────────────────────────
 echo -e "${YELLOW}⎈ Installing otel-poc umbrella chart...${NC}"
-helm dependency update "${UMBRELLA_CHART}" >/dev/null
 helm upgrade --install otel-poc "${UMBRELLA_CHART}" \
     --namespace default \
     --wait --timeout 5m
@@ -51,7 +57,7 @@ echo -e "${BLUE}║                    Deployment Complete                      
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${GREEN}Releases:${NC}"
-helm list -n default 2>/dev/null | tail -n +2 || true
+helm list -n default || true
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"
 echo "  1. Port-forward:   make k8s-forward"
