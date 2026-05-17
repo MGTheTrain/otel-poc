@@ -2,6 +2,9 @@ dependencies:
 - name: otel-platform
   repository: file://../otel-platform
   version: 0.1.0
+- name: cpp-service
+  repository: file://../services/cpp-service
+  version: 0.1.0
 - name: csharp-service
   repository: file://../services/csharp-service
   version: 0.1.0
@@ -11,5 +14,8 @@ dependencies:
 - name: python-service
   repository: file://../services/python-service
   version: 0.1.0
-digest: sha256:73c8950ed9cfab67e3671bf355b98d4406638bbf44d7d99115ea0634efee4a36
-generated: "2026-05-16T16:30:07.984060471Z"
+- name: rust-service
+  repository: file://../services/rust-service
+  version: 0.1.0
+digest: sha256:5f0922c1d500ba03853627351ac5456d6f0b3e617b9ae704d464f9a80a8cdf81
+generated: "2026-05-17T11:12:02.359703671Z"
