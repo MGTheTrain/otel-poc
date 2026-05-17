@@ -7,19 +7,23 @@ Complete observability platform demonstrating traces, metrics and logs across C#
 ### Docker Compose (Local Development)
 
 ```bash
-# Start everything
+# Option 1: Quick start all services using pre-built images (skips local compilation, Recommended)
+COMPOSE_FILE="./infra/compose/docker-compose.ci.yml" make compose-start
+
+# Option 2: Build internal services locally and start all services
 make compose-start
 
-# Or start specific services (Recommended)
+# Option 3: Start infrastructure services, build and start specific internal services
 make compose-infra
-make compose-start SERVICES="python-service go-service csharp-service rust-service"
-make compose-start SERVICES="cpp-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
+make compose-start SERVICES="python-service go-service csharp-service"
+make compose-start SERVICES="rust-service cpp-service" # Compile and start heavy services separately (slow on first run)
 
-# Generate test traffic and view results
-make compose-traffic
-make open-grafana  # Open http://localhost:3000 (admin/admin)
+# Terminal A - Generate traffic + assert telemetry landed
+make compose-traffic-assert
+# Open Grafana in browser
+make open-grafana # http://localhost:3000 (admin/admin)
 
-# Clean up docker resources
+# Stop services and remove volumes
 make compose-clean
 ```
 
@@ -28,17 +32,18 @@ make compose-clean
 Open the matching [dev container](.devcontainer/kind/devcontainer.json) in any IDE that supports [dev containers](https://containers.dev/), then run:
 
 ```bash
-# Terminal A - Deploy everything to Kind cluster
+# Terminal A - Deploy all services to the Kind cluster
 make k8s-deploy
 
 # Terminal B - Port-forward everything (observability + services)
 make k8s-fwd
 
-# Terminal A - Generate test traffic and view results
-make k8s-traffic
-make open-grafana  # Open http://localhost:3000 (admin/admin)
+# Terminal A - Generate traffic + assert telemetry landed
+make k8s-traffic-assert
+# Open Grafana in browser
+make open-grafana  # http://localhost:3000 (admin/admin)
 
-# Clean up k8s resources
+# Remove all deployments from Kind cluster
 make k8s-clean
 ```
 
