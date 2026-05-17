@@ -1,12 +1,12 @@
 {{- if .Values.httpRoute.enabled -}}
-{{- $fullName := include "csharp-otel-service.fullname" . -}}
+{{- $fullName := include "csharp-service.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "csharp-otel-service.labels" . | nindent 4 }}
+    {{- include "csharp-service.labels" . | nindent 4 }}
   {{- with .Values.httpRoute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

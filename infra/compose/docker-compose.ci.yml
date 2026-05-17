@@ -68,9 +68,7 @@ services:
   # Microservices
   csharp-service:
     container_name: csharp-service
-    build:
-      context: ${PROJECT_ROOT}/services/csharp-service
-      dockerfile: Dockerfile
+    image: mgthetrain987/otel-poc-csharp-service:latest
     ports:
       - "5001:8080"
     environment:
@@ -83,9 +81,7 @@ services:
 
   go-service:
     container_name: go-service
-    build:
-      context: ${PROJECT_ROOT}/services/go-service
-      dockerfile: Dockerfile
+    image: mgthetrain987/otel-poc-go-service:latest
     ports:
       - "5002:8080"
     environment:
@@ -98,9 +94,7 @@ services:
 
   python-service:
     container_name: python-service
-    build:
-      context: ${PROJECT_ROOT}/services/python-service
-      dockerfile: Dockerfile
+    image: mgthetrain987/otel-poc-python-service:latest
     ports:
       - "5003:8080"
     environment:
@@ -113,9 +107,7 @@ services:
 
   rust-service:
     container_name: rust-service
-    build:
-      context: ${PROJECT_ROOT}/services/rust-service
-      dockerfile: Dockerfile
+    image: mgthetrain987/otel-poc-rust-service:latest
     ports:
       - "5004:8080"
     environment:
@@ -128,9 +120,7 @@ services:
 
   cpp-service:
     container_name: cpp-service
-    build:
-      context: ${PROJECT_ROOT}/services/cpp-service
-      dockerfile: Dockerfile
+    image: mgthetrain987/otel-poc-cpp-service:latest
     ports:
       - "5005:8080"
     environment:

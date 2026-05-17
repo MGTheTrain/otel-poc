@@ -94,7 +94,7 @@ otel-collector:
   mode: deployment
   image:
     repository: otel/opentelemetry-collector-contrib
-    tag: ""   # chart default
+    tag: ""
   config:
     receivers:
       otlp:

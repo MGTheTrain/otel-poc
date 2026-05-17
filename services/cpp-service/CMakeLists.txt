@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(cpp-otel-service)
+project(cpp-service)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,7 +8,7 @@ find_package(CURL REQUIRED)
 find_package(opentelemetry-cpp CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-add_executable(cpp-otel-service main.cpp)
+add_executable(cpp-service main.cpp)
 
 # Include cpp-httplib (header-only)
 include(FetchContent)
@@ -19,7 +19,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(httplib)
 
-target_link_libraries(cpp-otel-service
+target_link_libraries(cpp-service
     PRIVATE
     opentelemetry-cpp::api
     opentelemetry-cpp::sdk
@@ -34,4 +34,4 @@ target_link_libraries(cpp-otel-service
     httplib::httplib
     CURL::libcurl
 )
-target_compile_options(cpp-otel-service PRIVATE -g -O0)
+target_compile_options(cpp-service PRIVATE -g -O0)

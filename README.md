@@ -12,8 +12,8 @@ make compose-start
 
 # Or start specific services (Recommended)
 make compose-infra
-make compose-start SERVICES="python-otel-service go-otel-service csharp-otel-service rust-otel-service"
-make compose-start SERVICES="cpp-otel-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
+make compose-start SERVICES="python-service go-service csharp-service rust-service"
+make compose-start SERVICES="cpp-service" # NOTE: C++ service is resource- and time-consuming to build on first run. Use selective service startup to skip it initially.
 
 # Generate test traffic and view results
 make compose-traffic
@@ -115,7 +115,7 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 ### 3. Logs (Loki)
 ```bash
 # In Grafana Explore → Loki, try:
-{service_name="rust-otel-service"}
+{service_name="rust-service"}
 {service_name=~".*-service"} |= "error"
 ```
 ![Logs](./images/grafana-loki-sample-logs.png)

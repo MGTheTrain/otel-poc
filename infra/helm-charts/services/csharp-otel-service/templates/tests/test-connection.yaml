@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "csharp-otel-service.fullname" . }}-test-connection"
+  name: "{{ include "csharp-service.fullname" . }}-test-connection"
   labels:
-    {{- include "csharp-otel-service.labels" . | nindent 4 }}
+    {{- include "csharp-service.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "csharp-otel-service.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "csharp-service.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never

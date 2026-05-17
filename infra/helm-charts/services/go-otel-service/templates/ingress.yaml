@@ -2,9 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "go-otel-service.fullname" . }}
+  name: {{ include "go-service.fullname" . }}
   labels:
-    {{- include "go-otel-service.labels" . | nindent 4 }}
+    {{- include "go-service.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -35,7 +35,7 @@ spec:
             {{- end }}
             backend:
               service:
-                name: {{ include "go-otel-service.fullname" $ }}
+                name: {{ include "go-service.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}

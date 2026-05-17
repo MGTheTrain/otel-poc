@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "csharp-otel-service.fullname" . }}
+  name: {{ include "csharp-service.fullname" . }}
   labels:
-    {{- include "csharp-otel-service.labels" . | nindent 4 }}
+    {{- include "csharp-service.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "csharp-otel-service.selectorLabels" . | nindent 6 }}
+      {{- include "csharp-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "csharp-otel-service.labels" . | nindent 8 }}
+        {{- include "csharp-service.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "csharp-otel-service.serviceAccountName" . }}
+      serviceAccountName: {{ include "csharp-service.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}

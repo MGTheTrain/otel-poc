@@ -10,23 +10,23 @@ dependencies:
     version: "0.1.0"
     repository: "file://../otel-platform"
 
-  - name: cpp-otel-service
+  - name: cpp-service
     version: "0.1.0"
-    repository: "file://../services/cpp-otel-service"
-    condition: cpp-otel-service.enabled
-  - name: csharp-otel-service
+    repository: "file://../services/cpp-service"
+    condition: cpp-service.enabled
+  - name: csharp-service
     version: "0.1.0"
-    repository: "file://../services/csharp-otel-service"
-    condition: csharp-otel-service.enabled
-  - name: go-otel-service
+    repository: "file://../services/csharp-service"
+    condition: csharp-service.enabled
+  - name: go-service
     version: "0.1.0"
-    repository: "file://../services/go-otel-service"
-    condition: go-otel-service.enabled
-  - name: python-otel-service
+    repository: "file://../services/go-service"
+    condition: go-service.enabled
+  - name: python-service
     version: "0.1.0"
-    repository: "file://../services/python-otel-service"
-    condition: python-otel-service.enabled
-  - name: rust-otel-service
+    repository: "file://../services/python-service"
+    condition: python-service.enabled
+  - name: rust-service
     version: "0.1.0"
-    repository: "file://../services/rust-otel-service"
-    condition: rust-otel-service.enabled
+    repository: "file://../services/rust-service"
+    condition: rust-service.enabled

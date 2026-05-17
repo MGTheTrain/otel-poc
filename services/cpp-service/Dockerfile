@@ -38,8 +38,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /app/build/cpp-otel-service /app/
+COPY --from=builder /app/build/cpp-service /app/
 WORKDIR /app
 EXPOSE 8080
 ENV LD_LIBRARY_PATH=/usr/local/lib
-CMD ["./cpp-otel-service"]
+CMD ["./cpp-service"]

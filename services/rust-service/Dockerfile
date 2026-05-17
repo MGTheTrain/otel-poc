@@ -7,6 +7,6 @@ RUN cargo build --release
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y libssl3 ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=builder /app/target/release/rust-otel-service .
+COPY --from=builder /app/target/release/rust-service .
 EXPOSE 8080
-CMD ["./rust-otel-service"]
+CMD ["./rust-service"]

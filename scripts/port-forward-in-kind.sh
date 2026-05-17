@@ -79,11 +79,11 @@ fi
 
 if ${FORWARD_SVC}; then
     echo "Services:"
-    forward csharp-otel-service 5001 8080
-    forward go-otel-service 5002 8080
-    forward python-otel-service 5003 8080
-    forward rust-otel-service 5004 8080
-    forward cpp-otel-service 5005 8080
+    forward csharp-service 5001 8080
+    forward go-service 5002 8080
+    forward python-service 5003 8080
+    forward rust-service 5004 8080
+    forward cpp-service 5005 8080
     echo ""
 fi
 

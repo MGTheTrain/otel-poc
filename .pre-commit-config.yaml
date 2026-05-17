@@ -21,9 +21,9 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
-        files: ^services/python-otel-service/
+        files: ^services/python-service/
       - id: ruff-format
-        files: ^services/python-otel-service/
+        files: ^services/python-service/
 
   # # Markdown
   # - repo: https://github.com/DavidAnson/markdownlint-cli2
@@ -52,16 +52,16 @@ repos:
   #   rev: v1.64.5
   #   hooks:
   #     - id: golangci-lint
-  #       files: ^services/go-otel-service/
+  #       files: ^services/go-service/
 
   # # Rust
   # - repo: https://github.com/doublify/pre-commit-rust
   #   rev: master
   #   hooks:
   #     - id: fmt
-  #       files: ^services/rust-otel-service/
+  #       files: ^services/rust-service/
   #     - id: clippy
-  #       files: ^services/rust-otel-service/
+  #       files: ^services/rust-service/
 
   # # Helm
   # - repo: https://github.com/gruntwork-io/pre-commit
@@ -74,11 +74,11 @@ repos:
   #   rev: v19.1.0
   #   hooks:
   #     - id: clang-format
-  #       files: ^services/cpp-otel-service/.*\.(cpp|h)$
+  #       files: ^services/cpp-service/.*\.(cpp|h)$
 
   # # C#
   # - repo: https://github.com/juarezjuniorgithub/csharpier-pre-commit
   #   rev: v0.30.0
   #   hooks:
   #     - id: csharpier
-  #       files: ^services/csharp-otel-service/.*\.cs$
+  #       files: ^services/csharp-service/.*\.cs$

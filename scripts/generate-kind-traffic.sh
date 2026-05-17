@@ -15,11 +15,11 @@ SLEEP_BETWEEN="${SLEEP_BETWEEN:-1}"
 # Discover services dynamically — skip the ones not deployed.
 SERVICES=()
 for candidate in \
-    python-otel-service \
-    go-otel-service \
-    csharp-otel-service \
-    rust-otel-service \
-    cpp-otel-service; do
+    python-service \
+    go-service \
+    csharp-service \
+    rust-service \
+    cpp-service; do
     if kubectl get svc "${candidate}" -n "${NAMESPACE}" >/dev/null 2>&1; then
         SERVICES+=("${candidate}")
     fi

@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "rust-otel-service.fullname" . }}
+  name: {{ include "rust-service.fullname" . }}
   labels:
-    {{- include "rust-otel-service.labels" . | nindent 4 }}
+    {{- include "rust-service.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "rust-otel-service.fullname" . }}
+    name: {{ include "rust-service.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

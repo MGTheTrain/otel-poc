@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "go-otel-service.fullname" . }}
+  name: {{ include "go-service.fullname" . }}
   labels:
-    {{- include "go-otel-service.labels" . | nindent 4 }}
+    {{- include "go-service.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "go-otel-service.fullname" . }}
+    name: {{ include "go-service.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
