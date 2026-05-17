@@ -61,7 +61,7 @@ compose-status: ## [Compose] Show status of all services
 	@$(COMPOSE) ps
 
 compose-traffic: ## [Compose] Generate test traffic
-	@bash scripts/generate-traffic.sh
+	@scripts/generate-traffic.sh compose
 
 compose-infra: ## [Compose] Start only infrastructure services
 	@$(COMPOSE) up -d otel-collector jaeger prometheus loki grafana
@@ -95,7 +95,7 @@ k8s-forward-stop: ## [K8s] Kill the background port-forwards
 	@if [ -f /tmp/zta-pf.pid ]; then kill $$(cat /tmp/zta-pf.pid) 2>/dev/null || true; rm -f /tmp/zta-pf.pid; fi
 
 k8s-traffic: ## [K8s] Generate test traffic to all services
-	@bash scripts/generate-kind-traffic.sh
+	@scripts/generate-traffic.sh k8s
 
 # Development
 
