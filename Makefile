@@ -90,12 +90,12 @@ k8s-fwd-svc: ## [K8s] Port-forward OpenTelemetry services only
 k8s-forward: ## [K8s] Port-forward everything (observability + services)
 	@bash scripts/port-forward-in-kind.sh --all
 
-k8s-forward-bg: ## [K8s] Same, but background — writes PID to /tmp/zta-pf.pid
-	@bash scripts/port-forward-in-kind.sh --all > /tmp/zta-pf.log 2>&1 & echo $$! > /tmp/zta-pf.pid
-	@echo " Port-forwards started in background (PID $$(cat /tmp/zta-pf.pid))"
+k8s-forward-bg: ## [K8s] Same, but background — writes PID to /tmp/otel-pf.pid
+	@bash scripts/port-forward-in-kind.sh --all > /tmp/otel-pf.log 2>&1 & echo $$! > /tmp/otel-pf.pid
+	@echo " Port-forwards started in background (PID $$(cat /tmp/otel-pf.pid))"
 
 k8s-forward-stop: ## [K8s] Kill the background port-forwards
-	@if [ -f /tmp/zta-pf.pid ]; then kill $$(cat /tmp/zta-pf.pid) 2>/dev/null || true; rm -f /tmp/zta-pf.pid; fi
+	@if [ -f /tmp/otel-pf.pid ]; then kill $$(cat /tmp/otel-pf.pid) 2>/dev/null || true; rm -f /tmp/otel-pf.pid; fi
 
 k8s-traffic: ## [K8s] Generate test traffic to all services
 	@scripts/generate-traffic.sh k8s

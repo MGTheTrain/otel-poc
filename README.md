@@ -155,7 +155,7 @@ Kubernetes targets:
   k8s-fwd-obs        Port-forward observability stack only
   k8s-fwd-svc        Port-forward OpenTelemetry services only
   k8s-forward        Port-forward everything (observability + services)
-  k8s-forward-bg     Same, but background — writes PID to /tmp/zta-pf.pid
+  k8s-forward-bg     Same, but background — writes PID to /tmp/otel-pf.pid
   k8s-forward-stop   Kill the background port-forwards
   k8s-traffic        Generate test traffic to all services
   k8s-traffic-assert Generate traffic + assert telemetry landed
