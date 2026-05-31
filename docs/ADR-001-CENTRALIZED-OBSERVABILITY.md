@@ -55,7 +55,7 @@ Decision validated through PoC implementation demonstrating:
 - Traces visible in Jaeger UI with proper span relationships
 - Metrics scraped by Prometheus with correct labels and dimensions
 - Logs ingested by Loki with trace/span correlation enabled through structured logging and OpenTelemetry context propagation
-- Backend switch verified by changing collector configuration from Jaeger to alternative backend (test pending)
+- Backend switch verified by changing collector configuration from Jaeger to alternative backend
 
 Implementation demonstrates that telemetry export backends can be changed without modifying application instrumentation code, though dashboards, alerting rules and operational tooling may still require updates.
 
@@ -123,6 +123,7 @@ The collector enables iterative backend evolution without application impact:
 All transitions accomplished through collector configuration updates without service code changes.
 
 **Production Deployment Considerations**:
+- Production deployments may use agent, gateway or hybrid collector patterns depending on scale, network topology and operational requirements.
 - Deploy collector as Kubernetes DaemonSet or Deployment for high availability
 - Configure persistent storage backends for production scale
 - Implement backend redundancy (primary + backup exporters)
