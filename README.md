@@ -4,47 +4,49 @@ Complete observability platform demonstrating traces, metrics and logs across C#
 
 ## Quick Start
 
-### Docker Compose (Local Development)
+### Docker Compose
 
 ```bash
-# Option 1: Quick start all services using pre-built images (skips local compilation, Recommended)
-COMPOSE_FILE="./infra/compose/docker-compose.ci.yml" make compose-start
+export RUNTIME=compose
 
-# Option 2: Build internal services locally and start all services
-make compose-start
+# Option 1: Quick start with pre-built images (recommended for first run)
+COMPOSE_FILE="./infra/compose/docker-compose.ci.yml" make start
 
-# Option 3: Start infrastructure services, build and start specific internal services
-make compose-start-infra
-make compose-start SERVICES="python-service go-service csharp-service"
-make compose-start SERVICES="rust-service cpp-service" # Compile and start heavy services separately (slow on first run)
+# Option 2: Build all services locally and start everything
+make start
 
-# Terminal A - Generate traffic
-make compose-traffic
-# Open Grafana in browser
-make open-grafana # http://localhost:3000 (admin/admin)
+# Option 3: Start infrastructure first, then selective services
+make start-infra
+make start SERVICES="python-otel-service go-otel-service csharp-otel-service"
+make start SERVICES="rust-otel-service cpp-otel-service"   # slow on first build
 
-# Stop services and remove volumes
-make compose-clean
+# Generate traffic + open Grafana
+make traffic
+make open-grafana   # http://localhost:3000 (admin/admin)
+
+# Tear down (compose: down + prune)
+make stop
 ```
 
-### Kubernetes Kind (Local Development)
+### Kubernetes (kind)
 
 Open the matching [dev container](.devcontainer/kind/devcontainer.json) in any IDE that supports [dev containers](https://containers.dev/), then run:
 
 ```bash
-# Terminal A - Deploy all services to the Kind cluster
-make k8s-deploy
+export RUNTIME=k8s
 
-# Terminal B - Port-forward everything (observability + services)
-make k8s-fwd
+# Terminal A — deploy
+make start
 
-# Terminal A - Generate traffic
-make k8s-traffic
-# Open Grafana in browser
-make open-grafana  # http://localhost:3000 (admin/admin)
+# Terminal B — port-forward everything (observability + services)
+make forward
 
-# Remove all deployments from Kind cluster
-make k8s-clean
+# Terminal A — generate traffic + open Grafana
+make traffic
+make open-grafana   # http://localhost:3000 (admin/admin)
+
+# Tear down
+make stop
 ```
 
 ## What's Included
@@ -128,45 +130,37 @@ histogram_quantile(0.95, rate(otel_http_server_request_duration_seconds_bucket[5
 ## Development
 
 **Dev Containers:**
-Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make compose-start-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
+Each service has a pre-configured [dev container](https://containers.dev/) with debugging support. Open the dev container in a supported IDE for the chosen service → run `make start-infra` inside the container to launch external dependencies → set breakpoints in the service’s source code and start debugging
 
 **Available Commands:**
 ```bash
-Usage: make [target]
+OpenTelemetry Observability Stack PoC
 
-  PROJECT_ROOT   = /Users/marvingajek/Documents/poc-repos/otel-poc
+  PROJECT_ROOT = /Users/marvingajek/Documents/poc-repos/otel-poc
+  RUNTIME      = compose
 
-Common targets:
-  open-grafana       Open Grafana in browser
-  open-jaeger        Open Jaeger in browser
-  open-prometheus    Open Prometheus in browser
+Usage:
+  make <target> [RUNTIME=compose|k8s] [SERVICES="svc1 svc2"]
 
-Docker Compose targets:
-  compose-start      Start services (use SERVICES="svc1 svc2" for specific)
-  compose-start-infra Start only infrastructure services
-  compose-stop       Stop services
-  compose-restart    Restart services
-  compose-logs       Show logs
-  compose-build      Build service images
-  compose-clean      Stop services and remove volumes
-  compose-status     Show status of all services
-  compose-traffic    Generate test traffic
-  compose-test       Run service + telemetry tests against the compose stack
-
-Kubernetes targets:
-  k8s-deploy         Deploy all services to Kind cluster
-  k8s-clean          Remove all deployments from Kind cluster
-  k8s-redeploy       Uninstall + install (full reset)
-  k8s-fwd-obs        Port-forward observability stack only
-  k8s-fwd-svc        Port-forward OpenTelemetry services only
-  k8s-forward        Port-forward everything (observability + services)
-  k8s-forward-bg     Same, but background — writes PID to /tmp/otel-pf.pid
-  k8s-forward-stop   Kill the background port-forwards
-  k8s-traffic        Generate test traffic to available internal services
-  k8s-test           Run service + telemetry tests against the k8s deployment
-
-Development:
-  lint               Run pre-commit hooks on specific files
+  help                   Show available targets
+  open-grafana           Open Grafana in browser
+  open-jaeger            Open Jaeger in browser
+  open-prometheus        Open Prometheus in browser
+  lint                   Run pre-commit hooks
+  start                  Start the platform (compose: SERVICES="svc1 svc2" optional)
+  start-infra            Start only infrastructure (observability stack)
+  stop                   Stop the platform
+  restart                Restart the platform
+  logs                   Follow platform logs
+  build                  Rebuild service images (compose only; k8s rebuilds via deploy-to-kind.sh)
+  status                 Show platform status
+  traffic                Generate test traffic
+  test                   Run service + telemetry tests
+  forward                Port-forward everything (k8s only)
+  forward-obs            Port-forward observability only (k8s only)
+  forward-svc            Port-forward services only (k8s only)
+  forward-bg             Background port-forward (k8s only; writes PID to /tmp/otel-pf.pid)
+  forward-stop           Stop background port-forwards
 ```
 
 ## Resources

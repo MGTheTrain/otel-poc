@@ -33,4 +33,4 @@ kubectl delete pod --field-selector=status.phase==Failed --ignore-not-found=true
 echo -e "${GREEN}✓ Swept${NC}"
 echo ""
 
-echo -e "${GREEN}✓ Cleanup complete — 'make k8s-deploy' to redeploy.${NC}"
+echo -e "${GREEN}✓ Cleanup complete — 'RUNTIME=k8s && make start' to redeploy.${NC}"

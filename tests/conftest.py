@@ -31,5 +31,5 @@ def deployed_services(endpoints: Endpoints) -> list[str]:
         except requests.RequestException:
             pass
     if not alive:
-        pytest.exit("No services reachable — did you run port-forward / compose-start?", returncode=2)
+        pytest.exit("No services reachable — did you run port-forward / start?", returncode=2)
     return alive

@@ -78,7 +78,7 @@ else
         fi
     done
     [ ${#AVAILABLE[@]} -eq 0 ] && {
-        echo "No services responding on localhost:5001-5005. Did you run 'make compose-start'?" >&2
+        echo "No services responding on localhost:5001-5005. Did you run 'make start'?" >&2
         exit 1
     }
     SERVICES=("${AVAILABLE[@]}")
